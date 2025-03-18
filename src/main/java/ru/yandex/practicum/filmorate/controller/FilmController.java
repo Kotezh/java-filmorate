@@ -42,7 +42,8 @@ public class FilmController {
                 .orElse(0);
         return ++currentMaxId;
     }
-    private void validateFilm(Film film){
+
+    private void validateFilm(Film film) {
         if (film.getName() == null || film.getName().isBlank()) {
             log.error("Название не может быть пустым");
             throw new ValidationException("Название не может быть пустым");
@@ -51,7 +52,7 @@ public class FilmController {
             log.error("Максимальная длина описания — 200 символов");
             throw new ValidationException("Максимальная длина описания — 200 символов");
         }
-        if (film.getReleaseDate().isBefore(LocalDate.of(1895, 12,28))) {
+        if (film.getReleaseDate().isBefore(LocalDate.of(1895, 12, 28))) {
             log.error("Дата релиза — не раньше 28 декабря 1895 года");
             throw new ValidationException("Дата релиза — не раньше 28 декабря 1895 года");
         }
