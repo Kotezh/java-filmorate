@@ -19,7 +19,8 @@ public class FilmController {
 
     @GetMapping
     public Collection<Film> findAll() {
-        return films.values();
+        Collection<Film> allFilms = films.values();
+        return allFilms;
     }
 
     @PostMapping
