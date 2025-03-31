@@ -16,11 +16,11 @@ public class Film {
 
     private Set<Long> likes = new HashSet<>();
 
-    public void addLike(long userId){
+    public void addLike(long userId) {
         likes.add(userId);
-    };
+    }
 
-    public void deleteLike(long userId){
+    public void deleteLike(long userId) {
         likes.remove(userId);
-    };
+    }
 }
