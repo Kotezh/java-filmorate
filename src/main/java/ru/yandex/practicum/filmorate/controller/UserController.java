@@ -1,11 +1,12 @@
 package ru.yandex.practicum.filmorate.controller;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
-import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.service.UserService;
 
@@ -15,6 +16,7 @@ import java.util.Collection;
 @RequiredArgsConstructor
 @Slf4j
 @RequestMapping("/users")
+@Validated
 public class UserController {
     private final UserService userService;
 
@@ -26,13 +28,13 @@ public class UserController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public User create(@RequestBody User newUser) throws ValidationException {
+    public User create(@Valid @RequestBody User newUser) {
         return userService.create(newUser);
     }
 
     @PutMapping
     @ResponseStatus(HttpStatus.OK)
-    public User update(@RequestBody User newUser) throws NotFoundException {
+    public User update(@Valid @RequestBody User newUser) {
         return userService.update(newUser);
     }
 

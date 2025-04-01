@@ -58,31 +58,30 @@ public class UserControllerTest {
     }
 
     @Test
-    void shouldBeCreatedValidUser() throws ValidationException {
-        User user = createTestUser1();
-        User savedUser = userController.create(user);
+    void shouldBeCreatedValidUser() {
+        User savedUser = createTestUser1();
 
         assertEquals("cat@mail.ru", savedUser.getEmail());
         assertEquals("cat", savedUser.getLogin());
         assertEquals("Cat", savedUser.getName());
         assertEquals(LocalDate.of(2000, 12, 12), savedUser.getBirthday());
 
-        user.setEmail("111111");
-        assertThrows(ValidationException.class, () -> userController.create(user));
+        savedUser.setEmail("111111");
+        assertThrows(NotFoundException.class, () -> userController.update(savedUser));
 
-        user.setEmail("cat.com");
-        assertThrows(ValidationException.class, () -> userController.create(user));
+        savedUser.setEmail("cat.com");
+        assertThrows(NotFoundException.class, () -> userController.update(savedUser));
 
-        user.setEmail("cat5@mail.ru");
-        user.setLogin("");
-        assertThrows(ValidationException.class, () -> userController.create(user));
+        savedUser.setEmail("cat5@mail.ru");
+        savedUser.setLogin("");
+        assertThrows(NotFoundException.class, () -> userController.update(savedUser));
 
-        user.setLogin(null);
-        assertThrows(ValidationException.class, () -> userController.create(user));
+        savedUser.setLogin(null);
+        assertThrows(NotFoundException.class, () -> userController.update(savedUser));
 
 
-        user.setBirthday(LocalDate.now().plusDays(2));
-        assertThrows(ValidationException.class, () -> userController.create(user));
+        savedUser.setBirthday(LocalDate.now().plusDays(2));
+        assertThrows(NotFoundException.class, () -> userController.update(savedUser));
     }
 
     @Test

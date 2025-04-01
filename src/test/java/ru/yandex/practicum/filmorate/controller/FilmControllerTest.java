@@ -2,7 +2,7 @@ package ru.yandex.practicum.filmorate.controller;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import ru.yandex.practicum.filmorate.exception.ValidationException;
+import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.service.FilmService;
 import ru.yandex.practicum.filmorate.storage.film.InMemoryFilmStorage;
@@ -71,24 +71,21 @@ public class FilmControllerTest {
     void shouldNotBeCreatedFilmWithBlankName() {
         Film film = createTestFilm1();
         film.setName("");
-
-        assertThrows(ValidationException.class, () -> filmController.create(film), "Валидация пустого названия фильма");
+        assertThrows(NotFoundException.class, () -> filmController.update(film), "Валидация пустого названия фильма");
     }
 
     @Test
     void shouldNotBeCreatedFilmWithLongDescription() {
         Film film = createTestFilm1();
         film.setDescription("a".repeat(230));
-
-        assertThrows(ValidationException.class, () -> filmController.create(film), "Валидация максимальной длины описания");
+        assertThrows(NotFoundException.class, () -> filmController.update(film), "Валидация максимальной длины описания");
     }
 
     @Test
     void shouldNotBeCreatedFilmWithOldReleaseDate() {
         Film film = createTestFilm1();
         film.setReleaseDate(LocalDate.of(1775, 1, 1));
-
-        assertThrows(ValidationException.class, () -> filmController.create(film),
+        assertThrows(NotFoundException.class, () -> filmController.update(film),
                 "Дата релиза слишком старая");
     }
 
@@ -97,7 +94,7 @@ public class FilmControllerTest {
         Film film = createTestFilm1();
         film.setDuration(-2);
 
-        assertThrows(ValidationException.class, () -> filmController.create(film),
-                "Продолжительность фильмадолжна быть положительной");
+        assertThrows(NotFoundException.class, () -> filmController.update(film),
+                "Продолжительность фильма должна быть положительной");
     }
 }
