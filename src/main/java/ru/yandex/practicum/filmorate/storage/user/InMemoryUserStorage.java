@@ -2,7 +2,6 @@ package ru.yandex.practicum.filmorate.storage.user;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
-import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.User;
 
 import java.util.Collection;
@@ -54,7 +53,7 @@ public class InMemoryUserStorage implements UserStorage {
     }
 
     @Override
-    public void deleteFriend(long userId, long friendId) throws NotFoundException {
+    public void deleteFriend(long userId, long friendId) {
         User user = users.get(userId);
         User friend = users.get(friendId);
 
@@ -63,7 +62,7 @@ public class InMemoryUserStorage implements UserStorage {
     }
 
     @Override
-    public Set<User> findAllFriends(long userId) throws NotFoundException {
+    public Set<User> findAllFriends(long userId) {
         User user = users.get(userId);
         Collection<Long> allFriendsIds = user.getFriends();
         Set<User> allFriends = allFriendsIds.stream().map(users::get).collect(Collectors.toSet());

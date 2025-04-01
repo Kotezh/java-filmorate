@@ -6,7 +6,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.service.UserService;
 
@@ -40,19 +39,19 @@ public class UserController {
 
     @PutMapping("/{userId}/friends/{friendId}")
     @ResponseStatus(HttpStatus.OK)
-    public void addFriend(@PathVariable("userId") long userId, @PathVariable("friendId") long friendId) throws NotFoundException {
+    public void addFriend(@PathVariable("userId") long userId, @PathVariable("friendId") long friendId) {
         userService.addFriend(userId, friendId);
     }
 
     @DeleteMapping("/{userId}/friends/{friendId}")
     @ResponseStatus(HttpStatus.OK)
-    public void deleteFriend(@PathVariable("userId") long userId, @PathVariable("friendId") long friendId) throws NotFoundException {
+    public void deleteFriend(@PathVariable("userId") long userId, @PathVariable("friendId") long friendId) {
         userService.deleteFriend(userId, friendId);
     }
 
     @GetMapping("/{userId}/friends")
     @ResponseStatus(HttpStatus.OK)
-    public Collection<User> findAllFriends(@PathVariable("userId") long userId) throws NotFoundException {
+    public Collection<User> findAllFriends(@PathVariable("userId") long userId) {
         return userService.findAllFriends(userId);
     }
 

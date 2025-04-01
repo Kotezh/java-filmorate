@@ -3,7 +3,6 @@ package ru.yandex.practicum.filmorate.controller;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
-import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.service.UserService;
 import ru.yandex.practicum.filmorate.storage.user.InMemoryUserStorage;
@@ -44,7 +43,7 @@ public class UserControllerTest {
     }
 
     @Test
-    public void shouldBeCreatedTwoUsers() throws ValidationException {
+    public void shouldBeCreatedTwoUsers() {
         User user1 = createTestUser1();
         User user2 = createTestUser2();
         userController.create(user1);
@@ -85,7 +84,7 @@ public class UserControllerTest {
     }
 
     @Test
-    void shouldBeUpdatedUser() throws NotFoundException, ValidationException {
+    void shouldBeUpdatedUser() {
         User user = createTestUser2();
         user.setName(null);
         userController.create(user);
