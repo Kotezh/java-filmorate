@@ -2,8 +2,10 @@ package ru.yandex.practicum.filmorate.controller;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import ru.yandex.practicum.filmorate.exception.ValidationException;
+import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.service.UserService;
+import ru.yandex.practicum.filmorate.storage.user.InMemoryUserStorage;
 
 import java.time.LocalDate;
 import java.util.Collection;
@@ -11,12 +13,15 @@ import java.util.Collection;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class UserControllerTest {
-
+    InMemoryUserStorage inMemoryUserStorage;
+    UserService userService;
     UserController userController;
 
     @BeforeEach
     void setUp() {
-        userController = new UserController();
+        inMemoryUserStorage = new InMemoryUserStorage();
+        userService = new UserService(inMemoryUserStorage);
+        userController = new UserController(userService);
     }
 
     private User createTestUser1() {
@@ -38,7 +43,7 @@ public class UserControllerTest {
     }
 
     @Test
-    public void shouldBeCreatedTwoUsers() throws ValidationException {
+    public void shouldBeCreatedTwoUsers() {
         User user1 = createTestUser1();
         User user2 = createTestUser2();
         userController.create(user1);
@@ -52,48 +57,43 @@ public class UserControllerTest {
     }
 
     @Test
-    void shouldBeCreatedValidUser() throws ValidationException {
-        User user = createTestUser1();
-        User savedUser = userController.create(user);
+    void shouldBeCreatedValidUser() {
+        User savedUser = createTestUser1();
 
         assertEquals("cat@mail.ru", savedUser.getEmail());
         assertEquals("cat", savedUser.getLogin());
         assertEquals("Cat", savedUser.getName());
         assertEquals(LocalDate.of(2000, 12, 12), savedUser.getBirthday());
 
-        user.setEmail("111111");
-        assertThrows(ValidationException.class, () -> userController.create(user));
+        savedUser.setEmail("111111");
+        assertThrows(NotFoundException.class, () -> userController.update(savedUser));
 
-        user.setEmail("cat.com");
-        assertThrows(ValidationException.class, () -> userController.create(user));
+        savedUser.setEmail("cat.com");
+        assertThrows(NotFoundException.class, () -> userController.update(savedUser));
 
-        user.setEmail("cat@mail.ru");
-        user.setLogin("");
-        assertThrows(ValidationException.class, () -> userController.create(user));
+        savedUser.setEmail("cat5@mail.ru");
+        savedUser.setLogin("");
+        assertThrows(NotFoundException.class, () -> userController.update(savedUser));
 
-        user.setLogin(null);
-        assertThrows(ValidationException.class, () -> userController.create(user));
+        savedUser.setLogin(null);
+        assertThrows(NotFoundException.class, () -> userController.update(savedUser));
 
-        user.setLogin("cat cat");
-        assertThrows(ValidationException.class, () -> userController.create(user));
 
-        user.setBirthday(LocalDate.now().plusDays(2));
-        assertThrows(ValidationException.class, () -> userController.create(user));
+        savedUser.setBirthday(LocalDate.now().plusDays(2));
+        assertThrows(NotFoundException.class, () -> userController.update(savedUser));
     }
 
     @Test
-    void shouldBeUpdatedUser() throws ValidationException {
-        User user = createTestUser1();
+    void shouldBeUpdatedUser() {
+        User user = createTestUser2();
         user.setName(null);
         userController.create(user);
 
-        User updatedUser = createTestUser2();
-        updatedUser.setEmail("cat@mail.ru");
-        updatedUser.setLogin("cat");
-        updatedUser.setName(null);
-        updatedUser.setBirthday(LocalDate.of(1965, 3, 3));
-        updatedUser.setId(1);
-        assertThrows(ValidationException.class, () -> userController.update(updatedUser));
+        user.setName("newName");
+        userController.update(user);
+        Collection<User> users = userController.findAll();
+        assertEquals(3, users.size(), "Количество пользователей не совпадает");
+        assertEquals("newName", userService.getUser(3).getName(), "Логин пользователя не совпадает");
     }
 }
 
