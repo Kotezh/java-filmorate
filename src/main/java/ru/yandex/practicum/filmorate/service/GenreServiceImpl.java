@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.dal.JdbcGenreRepository;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
+import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
 
 import java.util.List;
@@ -22,5 +23,10 @@ public class GenreServiceImpl implements GenreService {
     @Override
     public List<Genre> getAllGenres() {
         return jdbcGenreRepository.getAllGenres();
+    }
+
+    @Override
+    public void load(List<Film> films) {
+        jdbcGenreRepository.load(films);
     }
 }

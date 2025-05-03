@@ -1,6 +1,5 @@
 package ru.yandex.practicum.filmorate.service;
 
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -41,7 +40,7 @@ public class FilmServiceImpl implements FilmService {
     }
 
     @Override
-    public Film create(@Valid Film film) {
+    public Film create(Film film) {
         film.setLikesCount(0);
         Mpa mpa = jdbcMpaRepository.getMpaById(film.getMpa().getId())
                 .orElseThrow(() -> new NotFoundException("Рейтинг с id " + film.getMpa().getId() + " не найден"));
@@ -64,7 +63,7 @@ public class FilmServiceImpl implements FilmService {
     }
 
     @Override
-    public Film update(@Valid Film film) {
+    public Film update(Film film) {
 
         if (film.getId() == -1) {
             log.error("Id должен быть указан");

@@ -9,7 +9,6 @@ import lombok.*;
 import java.time.LocalDate;
 
 @Data
-@ToString
 @AllArgsConstructor
 @NoArgsConstructor
 public class User {

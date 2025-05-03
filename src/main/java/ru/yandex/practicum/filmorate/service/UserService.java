@@ -1,6 +1,5 @@
 package ru.yandex.practicum.filmorate.service;
 
-import jakarta.validation.Valid;
 import ru.yandex.practicum.filmorate.model.User;
 
 import java.util.List;
@@ -10,9 +9,9 @@ public interface UserService {
 
     List<User> getUsers();
 
-    User create(@Valid User user);
+    User create(User user);
 
-    User update(@Valid User user);
+    User update(User user);
 
     void addFriend(long userId, long friendId);
 

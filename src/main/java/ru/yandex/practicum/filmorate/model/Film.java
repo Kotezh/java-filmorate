@@ -9,7 +9,6 @@ import java.util.LinkedHashSet;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@ToString
 public class Film {
     private long id;
     @NotBlank(message = "Название не может быть пустым")

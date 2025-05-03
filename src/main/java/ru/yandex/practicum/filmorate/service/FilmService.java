@@ -1,6 +1,5 @@
 package ru.yandex.practicum.filmorate.service;
 
-import jakarta.validation.Valid;
 import ru.yandex.practicum.filmorate.model.Film;
 
 import java.util.List;
@@ -10,9 +9,9 @@ public interface FilmService {
 
     List<Film> getFilms();
 
-    Film create(@Valid Film film);
+    Film create(Film film);
 
-    Film update(@Valid Film film);
+    Film update(Film film);
 
     void addLike(long filmId, long userId);
 
