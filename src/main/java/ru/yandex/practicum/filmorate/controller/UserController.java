@@ -7,7 +7,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.model.User;
-import ru.yandex.practicum.filmorate.service.UserService;
+import ru.yandex.practicum.filmorate.service.UserServiceImpl;
 
 import java.util.Collection;
 
@@ -17,12 +17,18 @@ import java.util.Collection;
 @RequestMapping("/users")
 @Validated
 public class UserController {
-    private final UserService userService;
+    private final UserServiceImpl userService;
 
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
     public Collection<User> findAll() {
-        return userService.findAll();
+        return userService.getUsers();
+    }
+
+    @GetMapping("/{userId}")
+    @ResponseStatus(HttpStatus.OK)
+    public User get(@PathVariable long userId) {
+        return userService.getUserById(userId);
     }
 
     @PostMapping
@@ -51,15 +57,13 @@ public class UserController {
 
     @GetMapping("/{userId}/friends")
     @ResponseStatus(HttpStatus.OK)
-    public Collection<User> findAllFriends(@PathVariable("userId") long userId) {
-        return userService.findAllFriends(userId);
+    public Collection<User> getAllFriends(@PathVariable("userId") long userId) {
+        return userService.getAllFriends(userId);
     }
 
     @GetMapping("/{userId}/friends/common/{otherId}")
     @ResponseStatus(HttpStatus.OK)
-    public Collection<User> findCommonFriends(@PathVariable("userId") long userId, @PathVariable("otherId") long otherId) {
-        return userService.findCommonFriends(userId, otherId);
+    public Collection<User> getCommonFriends(@PathVariable("userId") long userId, @PathVariable("otherId") long otherId) {
+        return userService.getCommonFriends(userId, otherId);
     }
-
-
 }
