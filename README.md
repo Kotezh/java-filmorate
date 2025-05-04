@@ -7,7 +7,7 @@
 ## Значения полей:
 
 - status: APPROVED, PENDING;
-- rating_id: G, PG, PG-13, R, NC-17;
+- mpa_id: G, PG, PG-13, R, NC-17;
 
 ## Примеры SQL-запросов
 
@@ -37,8 +37,8 @@ ORDER BY u.name;
 SELECT f.name,
        f.duration
 FROM film AS f
-JOIN rating AS r ON f.rating_id = r.rating_id
-WHERE r.rating_id = 'R'
+JOIN mpa AS r ON f.mpa_id = r.mpa_id
+WHERE r.mpa_id = 'R'
 GROUP BY f.name
 ORDER BY f.name;
 ```
