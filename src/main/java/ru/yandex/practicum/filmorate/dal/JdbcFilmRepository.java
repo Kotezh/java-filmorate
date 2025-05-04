@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcOperations;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
+import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.dal.mappers.FilmRowMapper;
 import ru.yandex.practicum.filmorate.dal.mappers.GenreRowMapper;
@@ -11,6 +12,7 @@ import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
 
 import java.util.*;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 @Repository
@@ -49,6 +51,13 @@ public class JdbcFilmRepository implements FilmRepository {
             GROUP BY f.film_id
             ORDER BY COUNT(l.user_id) DESC
             LIMIT :limit
+            """;
+
+    private static final String SELECT_GENRES_BY_FILM_IDS_QUERY = """
+            SELECT *
+            FROM film_genres AS fg
+            LEFT JOIN genres ON fg.genre_id = genres.genre_id
+            WHERE fg.film_id IN (:film_ids)
             """;
 
     @Override
@@ -108,9 +117,7 @@ public class JdbcFilmRepository implements FilmRepository {
     public List<Film> getAllFilms() {
         List<Film> films = jdbc.query(GET_FILMS_QUERY, mapper);
 
-        for (Film film : films) {
-            getFilmGenres(film);
-        }
+        connectGenres(films);
         return films;
     }
 
@@ -139,6 +146,21 @@ public class JdbcFilmRepository implements FilmRepository {
         return filmGenres;
     }
 
+    private void connectGenres(Collection<Film> films) {
+        List<Long> filmIds = films.stream().map(Film::getId).toList();
+        MapSqlParameterSource params = new MapSqlParameterSource("film_ids", filmIds);
+        SqlRowSet rs = jdbc.queryForRowSet(SELECT_GENRES_BY_FILM_IDS_QUERY, params);
+
+        Map<Long, Film> filmsMap = films.stream()
+                .collect(Collectors.toMap(Film::getId, film -> film));
+
+        while (rs.next()) {
+            long filmId = rs.getLong("film_id");
+            Genre genre = new Genre(rs.getLong("genre_id"), rs.getString("genre_name"));
+            filmsMap.get(filmId).getGenres().add(genre);
+        }
+    }
+
     @Override
     public void addLike(long filmId, long userId) {
         GeneratedKeyHolder keyHolder = new GeneratedKeyHolder();
@@ -163,10 +185,7 @@ public class JdbcFilmRepository implements FilmRepository {
         params.addValue("limit", count);
         List<Film> popularFilms = jdbc.query(GET_POPULAR_FILMS_QUERY, params, mapper);
 
-        for (Film film : popularFilms) {
-            getFilmGenres(film);
-        }
-
+        connectGenres(popularFilms);
         return popularFilms;
     }
 }
