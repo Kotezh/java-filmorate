@@ -1,6 +1,5 @@
 package ru.yandex.practicum.filmorate.dal;
 
-import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
 
 import java.util.List;
@@ -12,6 +11,4 @@ public interface GenreRepository {
     List<Genre> getAllGenres();
 
     List<Genre> getGenresByIds(List<Long> ids);
-
-    List<Film> load(List<Film> films);
 }

@@ -34,13 +34,11 @@ public class JdbcFilmRepository implements FilmRepository {
             GROUP BY f.film_id, r.mpa_name
             """;
     private static final String GET_FILMS_QUERY = """
-            SELECT f.*, r.mpa_name, fg.genre_id AS genre_id, g.genre_name AS genre_name, COUNT(l.film_id) AS likes_count
+            SELECT f.*, r.mpa_name, COUNT(l.*) AS likes_count
             FROM films f
-            LEFT JOIN mpa r ON f.mpa_id = r.mpa_id
-            LEFT JOIN film_genres fg on f.film_id = fg.film_id
-            LEFT JOIN genres g ON fg.genre_id = g.genre_id
+            JOIN mpa r ON f.mpa_id = r.mpa_id
             LEFT JOIN likes l ON l.film_id = f.film_id
-            GROUP BY f.film_id, fg.genre_id
+            GROUP BY f.film_id, r.mpa_name
             """;
     private static final String SET_GENRE_QUERY = "INSERT INTO film_genres (film_id, genre_id) VALUES(:film_id, :genre_id);";
     private static final String GET_GENRE_QUERY = "SELECT g.genre_id, g.genre_name FROM film_genres fg JOIN genres g ON fg.genre_id = g.genre_id WHERE fg.film_id = :film_id";
@@ -120,6 +118,9 @@ public class JdbcFilmRepository implements FilmRepository {
     public List<Film> getAllFilms() {
         List<Film> films = jdbc.query(GET_FILMS_QUERY, mapper);
 
+        for (Film film : films) {
+            getFilmGenres(film);
+        }
         return films;
     }
 
@@ -171,6 +172,11 @@ public class JdbcFilmRepository implements FilmRepository {
         MapSqlParameterSource params = new MapSqlParameterSource();
         params.addValue("limit", count);
         List<Film> popularFilms = jdbc.query(GET_POPULAR_FILMS_QUERY, params, mapper);
+
+        for (Film film : popularFilms) {
+            getFilmGenres(film);
+        }
+
         return popularFilms;
     }
 }
