@@ -24,12 +24,9 @@ public class JdbcFilmRepository implements FilmRepository {
     private static final String CLEAN_GENRES_QUERY = "DELETE FROM film_genres WHERE film_id=:film_id";
     private static final String UPDATE_FILM_QUERY = "UPDATE films SET name=:name, description=:description, release_date=:release_date, duration=:duration, mpa_id=:mpa_id WHERE film_id=:film_id";
     private static final String GET_BY_ID_QUERY = """
-            SELECT f.*, r.mpa_name, COUNT(l.*) AS likes_count, fg.genre_id AS genre_id, g.genre_name AS genre_name
-            FROM films f
-            JOIN mpa r ON f.mpa_id = r.mpa_id
+            SELECT f.*, r.mpa_name, COUNT(l.*) AS likes_count
+            FROM films f JOIN mpa r ON f.mpa_id = r.mpa_id
             LEFT JOIN likes l ON l.film_id = f.film_id
-            LEFT JOIN film_genres fg on f.film_id = fg.film_id
-            LEFT JOIN genres g ON fg.genre_id = g.genre_id
             WHERE f.film_id = :film_id
             GROUP BY f.film_id, r.mpa_name
             """;
@@ -45,20 +42,13 @@ public class JdbcFilmRepository implements FilmRepository {
     private static final String ADD_LIKE_QUERY = "INSERT INTO likes (user_id, film_id) VALUES(:user_id, :film_id)";
     private static final String DELETE_LIKE_QUERY = "DELETE FROM likes WHERE film_id=:film_id AND user_id=:user_id;";
     private static final String GET_POPULAR_FILMS_QUERY = """
-            SELECT f.*, r.mpa_name, fg.genre_id AS genre_id, g.genre_name AS genre_name, popular.likes_count
+            SELECT f.*, r.mpa_name, COUNT(l.user_id) AS likes_count
             FROM films f
-            LEFT OUTER JOIN mpa r ON f.mpa_id = r.mpa_id
-            LEFT JOIN film_genres fg on f.film_id = fg.film_id
-            LEFT JOIN genres g ON fg.genre_id = g.genre_id
-            JOIN (SELECT fl.film_id, COUNT(l.film_id) AS likes_count
-                  FROM films fl
-                  LEFT OUTER JOIN likes l ON l.film_id = fl.film_id
-                  GROUP BY fl.film_id
-                  ORDER BY COUNT(l.film_id) DESC
-                  ) AS popular(film_id, likes_count) ON f.film_id = popular.film_id
-            GROUP BY f.film_id, fg.genre_id
-            ORDER BY popular.likes_count DESC
-            LIMIT :limit;
+            JOIN likes l ON l.film_id = f.film_id
+            JOIN mpa r ON r.mpa_id = f.mpa_id
+            GROUP BY f.film_id
+            ORDER BY COUNT(l.user_id) DESC
+            LIMIT :limit
             """;
 
     @Override
