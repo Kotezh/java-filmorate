@@ -5,13 +5,15 @@ import ru.yandex.practicum.filmorate.model.Film;
 import java.util.List;
 
 public interface FilmService {
-    Film getById(long filmId);
+    Film getFilmById(long filmId);
 
     List<Film> getFilms();
 
     Film create(Film film);
 
     Film update(Film film);
+
+    void deleteFilm(long filmId);
 
     void addLike(long filmId, long userId);
 

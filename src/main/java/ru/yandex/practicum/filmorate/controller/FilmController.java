@@ -25,7 +25,7 @@ public class FilmController {
 
     @GetMapping("/{filmId}")
     public Film get(@PathVariable long filmId) {
-        return filmService.getById(filmId);
+        return filmService.getFilmById(filmId);
     }
 
     @PostMapping
@@ -38,6 +38,12 @@ public class FilmController {
     @ResponseStatus(HttpStatus.OK)
     public Film update(@Valid @RequestBody Film newFilm) {
         return filmService.update(newFilm);
+    }
+
+    @DeleteMapping("/{filmId}")
+    @ResponseStatus(HttpStatus.OK)
+    public void deleteFilm(@PathVariable("filmId") long filmId) {
+        filmService.deleteFilm(filmId);
     }
 
     @PutMapping("/{filmId}/like/{userId}")

@@ -12,6 +12,7 @@ import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.model.Mpa;
+import ru.yandex.practicum.filmorate.model.User;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -195,6 +196,22 @@ class JdbcFilmRepositoryTest {
         assertThat(filmAfterUpdate)
                 .usingRecursiveComparison()
                 .isEqualTo(getTestFilmToCreateOrUpdate());
+    }
+
+    @Test
+    @DisplayName("Должен удалять фильм")
+    void shouldDeleteFilm() {
+        Film filmBeforeDelete = jdbcFilmRepository.getFilmById(TEST_FILM_ID)
+                .orElseThrow(() -> new NotFoundException("Не найден фильм с id = " + TEST_FILM_ID));
+
+        assertThat(jdbcFilmRepository.getAllFilms()).hasSize(3);
+        assertThat(filmBeforeDelete)
+                .usingRecursiveComparison()
+                .isEqualTo(getTestFilm());
+
+        jdbcFilmRepository.deleteFilm(TEST_FILM_ID);
+
+        assertThat(jdbcFilmRepository.getAllFilms()).hasSize(2);
     }
 
     @Test
