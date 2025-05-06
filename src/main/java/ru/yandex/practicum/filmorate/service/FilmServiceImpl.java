@@ -97,7 +97,7 @@ public class FilmServiceImpl implements FilmService {
         throw new NotFoundException("Фильм с id = " + film.getId() + " не найден");
     }
 
-    public void deleteFilm(long filmId){
+    public void deleteFilm(long filmId) {
         getFilmById(filmId);
         jdbcFilmRepository.deleteFilm(filmId);
         log.info("Фильм удален");

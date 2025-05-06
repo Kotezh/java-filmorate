@@ -52,7 +52,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public void deleteUser(long userId){
+    public void deleteUser(long userId) {
         getUserById(userId);
         jdbcUserRepository.deleteUser(userId);
         log.info("Пользователь удален");
