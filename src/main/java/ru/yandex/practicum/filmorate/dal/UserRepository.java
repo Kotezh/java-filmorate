@@ -16,7 +16,7 @@ public interface UserRepository {
 
     User update(User user);
 
-    void deleteUser (long userId);
+    void deleteUser(long userId);
 
     void addFriend(long userId, long friendId);
 
