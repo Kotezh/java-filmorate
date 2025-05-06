@@ -51,6 +51,13 @@ public class UserServiceImpl implements UserService {
         throw new NotFoundException("Пользователь с id = " + user.getId() + " не найден");
     }
 
+    @Override
+    public void deleteUser(long userId){
+        getUserById(userId);
+        jdbcUserRepository.deleteUser(userId);
+        log.info("Пользователь удален");
+    }
+
     private void checkUsersInTable(List<Long> usersIds) {
         List<User> foundUsers = jdbcUserRepository.getUsersByIds(usersIds);
         if (foundUsers.size() != usersIds.size()) {
