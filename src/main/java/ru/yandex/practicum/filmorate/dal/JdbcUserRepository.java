@@ -55,11 +55,11 @@ public class JdbcUserRepository implements UserRepository {
     }
 
     @Override
-    public void deleteUser (long userId){
+    public void deleteUser(long userId) {
         MapSqlParameterSource params = new MapSqlParameterSource();
         params.addValue("user_id", userId);
         jdbc.update(DELETE_USER_QUERY, params);
-    };
+    }
 
     @Override
     public Optional<User> getUserById(long userId) {
