@@ -47,10 +47,11 @@ public class JdbcFilmRepository implements FilmRepository {
     private static final String GET_POPULAR_FILMS_QUERY = """
             SELECT f.*, r.mpa_name, COUNT(l.user_id) AS likes_count
             FROM films f
-            JOIN likes l ON l.film_id = f.film_id
+            LEFT JOIN likes l ON l.film_id = f.film_id
             JOIN mpa r ON r.mpa_id = f.mpa_id
-            GROUP BY f.film_id
-            ORDER BY COUNT(l.user_id) DESC
+            WHERE f.film_id IS NOT NULL
+            GROUP BY f.film_id, r.mpa_name
+            ORDER BY likes_count DESC
             LIMIT :limit
             """;
 
