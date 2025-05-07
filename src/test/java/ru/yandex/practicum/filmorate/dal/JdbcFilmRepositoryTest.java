@@ -204,6 +204,7 @@ class JdbcFilmRepositoryTest {
                 .orElseThrow(() -> new NotFoundException("Не найден фильм с id = " + TEST_FILM_ID));
 
         assertThat(jdbcFilmRepository.getAllFilms()).hasSize(3);
+        assertThat(jdbcFilmRepository.getPopularFilms(1000)).hasSize(3);
         assertThat(filmBeforeDelete)
                 .usingRecursiveComparison()
                 .isEqualTo(getTestFilm());
@@ -211,6 +212,7 @@ class JdbcFilmRepositoryTest {
         jdbcFilmRepository.deleteFilm(TEST_FILM_ID);
 
         assertThat(jdbcFilmRepository.getAllFilms()).hasSize(2);
+        assertThat(jdbcFilmRepository.getPopularFilms(1000)).hasSize(2);
     }
 
     @Test
