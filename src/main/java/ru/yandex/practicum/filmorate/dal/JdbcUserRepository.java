@@ -19,6 +19,7 @@ public class JdbcUserRepository implements UserRepository {
 
     private static final String CREATE_USER_QUERY = "INSERT INTO users (login, email, name, birthday) VALUES(:login,:email,:name,:birthday)";
     private static final String UPDATE_USER_QUERY = "UPDATE users SET login=:login, email=:email, name=:name, birthday=:birthday WHERE user_id=:user_id";
+    private static final String DELETE_USER_QUERY = "DELETE FROM users WHERE user_id = :user_id";
     private static final String GET_USER_BY_ID_QUERY = "SELECT * FROM users WHERE user_id = :user_id";
     private static final String GET_ALL_USERS_QUERY = "SELECT * FROM users";
     private static final String ADD_FRIEND_QUERY = "INSERT INTO friends(user_id, friend_id) VALUES(:user_id,:friend_id)";
@@ -43,7 +44,6 @@ public class JdbcUserRepository implements UserRepository {
 
     @Override
     public User update(User user) {
-        GeneratedKeyHolder keyHolder = new GeneratedKeyHolder();
         MapSqlParameterSource params = new MapSqlParameterSource();
         params.addValue("login", user.getLogin());
         params.addValue("email", user.getEmail());
@@ -52,6 +52,13 @@ public class JdbcUserRepository implements UserRepository {
         params.addValue("user_id", user.getId());
         jdbc.update(UPDATE_USER_QUERY, params);
         return user;
+    }
+
+    @Override
+    public void deleteUser(long userId) {
+        MapSqlParameterSource params = new MapSqlParameterSource();
+        params.addValue("user_id", userId);
+        jdbc.update(DELETE_USER_QUERY, params);
     }
 
     @Override

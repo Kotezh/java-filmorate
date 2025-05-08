@@ -25,6 +25,7 @@ public class JdbcFilmRepository implements FilmRepository {
     private static final String CREATE_FILM_QUERY = "INSERT INTO films (name, description, release_date, duration, mpa_id) VALUES(:name,:description,:release_date,:duration,:mpa_id)";
     private static final String CLEAN_GENRES_QUERY = "DELETE FROM film_genres WHERE film_id=:film_id";
     private static final String UPDATE_FILM_QUERY = "UPDATE films SET name=:name, description=:description, release_date=:release_date, duration=:duration, mpa_id=:mpa_id WHERE film_id=:film_id";
+    private static final String DELETE_FILM_QUERY = "DELETE FROM films WHERE film_id=:film_id";
     private static final String GET_BY_ID_QUERY = """
             SELECT f.*, r.mpa_name, COUNT(l.*) AS likes_count
             FROM films f JOIN mpa r ON f.mpa_id = r.mpa_id
@@ -46,10 +47,11 @@ public class JdbcFilmRepository implements FilmRepository {
     private static final String GET_POPULAR_FILMS_QUERY = """
             SELECT f.*, r.mpa_name, COUNT(l.user_id) AS likes_count
             FROM films f
-            JOIN likes l ON l.film_id = f.film_id
+            LEFT JOIN likes l ON l.film_id = f.film_id
             JOIN mpa r ON r.mpa_id = f.mpa_id
-            GROUP BY f.film_id
-            ORDER BY COUNT(l.user_id) DESC
+            WHERE f.film_id IS NOT NULL
+            GROUP BY f.film_id, r.mpa_name
+            ORDER BY likes_count DESC
             LIMIT :limit
             """;
 
@@ -100,6 +102,13 @@ public class JdbcFilmRepository implements FilmRepository {
         jdbc.update(UPDATE_FILM_QUERY, params, keyHolder);
 
         return film;
+    }
+
+    @Override
+    public void deleteFilm(long filmId) {
+        MapSqlParameterSource params = new MapSqlParameterSource();
+        params.addValue("film_id", filmId);
+        jdbc.update(DELETE_FILM_QUERY, params);
     }
 
     @Override

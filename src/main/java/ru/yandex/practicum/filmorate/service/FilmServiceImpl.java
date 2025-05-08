@@ -28,7 +28,7 @@ public class FilmServiceImpl implements FilmService {
     private final JdbcMpaRepository jdbcMpaRepository;
 
     @Override
-    public Film getById(long filmId) {
+    public Film getFilmById(long filmId) {
         return jdbcFilmRepository.getFilmById(filmId)
                 .orElseThrow(() -> new NotFoundException("Фильм с id = " + filmId + " не найден"));
     }
@@ -71,7 +71,7 @@ public class FilmServiceImpl implements FilmService {
         }
 
         if (jdbcFilmRepository.getAllFilms().stream().anyMatch((oldFilm) -> oldFilm.getId() == film.getId())) {
-            Film savedFilm = getById(film.getId());
+            Film savedFilm = getFilmById(film.getId());
             film.setLikesCount(savedFilm.getLikesCount());
             Mpa mpa = jdbcMpaRepository.getMpaById(film.getMpa().getId())
                     .orElseThrow(() -> new NotFoundException("Рейтинг с id " + film.getMpa().getId() + " не найден"));
@@ -97,9 +97,15 @@ public class FilmServiceImpl implements FilmService {
         throw new NotFoundException("Фильм с id = " + film.getId() + " не найден");
     }
 
+    public void deleteFilm(long filmId) {
+        getFilmById(filmId);
+        jdbcFilmRepository.deleteFilm(filmId);
+        log.info("Фильм удален");
+    }
+
     @Override
     public void addLike(long filmId, long userId) {
-        Film film = getById(filmId);
+        Film film = getFilmById(filmId);
         jdbcUserRepository.getUserById(userId)
                 .orElseThrow(() -> new NotFoundException("Пользователь с id = " + userId + " не найден"));
 
@@ -112,7 +118,7 @@ public class FilmServiceImpl implements FilmService {
 
     @Override
     public void deleteLike(long filmId, long userId) {
-        Film film = getById(filmId);
+        Film film = getFilmById(filmId);
         jdbcUserRepository.getUserById(userId)
                 .orElseThrow(() -> new NotFoundException("Пользователь с id = " + userId + " не найден"));
 

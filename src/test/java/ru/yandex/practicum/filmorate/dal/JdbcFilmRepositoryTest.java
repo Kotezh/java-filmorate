@@ -198,6 +198,22 @@ class JdbcFilmRepositoryTest {
     }
 
     @Test
+    @DisplayName("Должен удалять фильм")
+    void shouldDeleteFilm() {
+        Film filmBeforeDelete = jdbcFilmRepository.getFilmById(TEST_FILM_ID)
+                .orElseThrow(() -> new NotFoundException("Не найден фильм с id = " + TEST_FILM_ID));
+
+        assertThat(jdbcFilmRepository.getAllFilms()).hasSize(3);
+        assertThat(filmBeforeDelete)
+                .usingRecursiveComparison()
+                .isEqualTo(getTestFilm());
+
+        jdbcFilmRepository.deleteFilm(TEST_FILM_ID);
+
+        assertThat(jdbcFilmRepository.getAllFilms()).hasSize(2);
+    }
+
+    @Test
     @DisplayName("Должен добавлять записи о лайках")
     void shouldAddLike() {
         Film film = jdbcFilmRepository.getFilmById(TEST_FILM_ID)
