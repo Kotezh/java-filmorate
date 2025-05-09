@@ -44,16 +44,6 @@ public class JdbcFilmRepository implements FilmRepository {
     private static final String GET_GENRE_QUERY = "SELECT g.genre_id, g.genre_name FROM film_genres fg JOIN genres g ON fg.genre_id = g.genre_id WHERE fg.film_id = :film_id";
     private static final String ADD_LIKE_QUERY = "INSERT INTO likes (user_id, film_id) VALUES(:user_id, :film_id)";
     private static final String DELETE_LIKE_QUERY = "DELETE FROM likes WHERE film_id=:film_id AND user_id=:user_id;";
-    private static final String GET_POPULAR_FILMS_QUERY = """
-            SELECT f.*, r.mpa_name, COUNT(l.user_id) AS likes_count
-            FROM films f
-            LEFT JOIN likes l ON l.film_id = f.film_id
-            JOIN mpa r ON r.mpa_id = f.mpa_id
-            WHERE f.film_id IS NOT NULL
-            GROUP BY f.film_id, r.mpa_name
-            ORDER BY likes_count DESC
-            LIMIT :limit
-            """;
 
     private static final String SELECT_GENRES_BY_FILM_IDS_QUERY = """
             SELECT *
@@ -189,11 +179,39 @@ public class JdbcFilmRepository implements FilmRepository {
     }
 
     @Override
-    public List<Film> getPopularFilms(int count) {
+    public List<Film> getPopularFilms(int count, Long genreId, Integer year) {
+        List<Film> popularFilms;
         MapSqlParameterSource params = new MapSqlParameterSource();
-        params.addValue("limit", count);
-        List<Film> popularFilms = jdbc.query(GET_POPULAR_FILMS_QUERY, params, mapper);
+        params.addValue("count", count);
+        if (genreId != null) params.addValue("genreId", genreId);
+        if (year != null) params.addValue("year", year);
+        final String GET_POPULAR_FILMS_PREFIX_QUERY = """
+                SELECT f.*, r.mpa_name, COUNT(l.user_id) AS likes_count
+                FROM films f
+                LEFT JOIN likes l ON l.film_id = f.film_id
+                LEFT JOIN film_genres fg ON fg.film_id = f.film_id
+                JOIN mpa r ON r.mpa_id = f.mpa_id
+                WHERE f.film_id IS NOT NULL
+                """;
+        final String GET_POPULAR_FILMS_POSTFIX_QUERY = """
+                GROUP BY f.film_id, r.mpa_name
+                ORDER BY likes_count DESC
+                LIMIT :count
+                """;
+        String GENRE_SQL = "AND fg.genre_id=:genreId";
+        String YEAR_SQL = "AND EXTRACT(YEAR FROM f.release_date)=:year";
+        String sql;
 
+        if (genreId == null && year == null) {
+            sql = GET_POPULAR_FILMS_PREFIX_QUERY + " " + GET_POPULAR_FILMS_POSTFIX_QUERY;
+        } else if (genreId != null && year == null) {
+            sql = GET_POPULAR_FILMS_PREFIX_QUERY + " " + GENRE_SQL + " " + GET_POPULAR_FILMS_POSTFIX_QUERY;
+        } else if (genreId == null && year != null) {
+            sql = GET_POPULAR_FILMS_PREFIX_QUERY + " " + YEAR_SQL + " " + GET_POPULAR_FILMS_POSTFIX_QUERY;
+        } else {
+            sql = GET_POPULAR_FILMS_PREFIX_QUERY + " " + GENRE_SQL + " " + YEAR_SQL + " " + GET_POPULAR_FILMS_POSTFIX_QUERY;
+        }
+        popularFilms = jdbc.query(sql, params, mapper);
         connectGenres(popularFilms);
         return popularFilms;
     }
