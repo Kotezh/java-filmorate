@@ -198,8 +198,8 @@ public class JdbcFilmRepository implements FilmRepository {
                 ORDER BY likes_count DESC
                 LIMIT :count
                 """;
-        String GENRE_SQL = "AND fg.genre_id=:genreId";
-        String YEAR_SQL = "AND EXTRACT(YEAR FROM f.release_date)=:year";
+        final String GENRE_SQL = "AND fg.genre_id=:genreId";
+        final String YEAR_SQL = "AND EXTRACT(YEAR FROM f.release_date)=:year";
         String sql;
 
         if (genreId == null && year == null) {
