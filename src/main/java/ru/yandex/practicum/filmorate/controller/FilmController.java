@@ -64,10 +64,11 @@ public class FilmController {
     public Collection<Film> getPopularFilms(@RequestParam(value = "count", defaultValue = "10") final Integer count) {
         return filmService.getPopularFilms(count);
     }
+
     @GetMapping("/director/{directorId}")
     @ResponseStatus(HttpStatus.OK)
-    public Collection<Film> getDirectorFilm(@RequestParam(value = "sortBy") final String sort,@PathVariable("directorId") long directorId){
-        if (sort.equals("year")){
+    public Collection<Film> getDirectorFilm(@RequestParam(value = "sortBy") final String sort, @PathVariable("directorId") long directorId) {
+        if (sort.equals("year")) {
             return filmService.getDirectorFilmsByYear(directorId);
         } else if (sort.equals("likes")) {
             return filmService.getDirectorFilmsByLikes(directorId);

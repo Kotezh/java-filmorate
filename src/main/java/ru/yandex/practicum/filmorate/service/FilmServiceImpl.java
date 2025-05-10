@@ -134,13 +134,15 @@ public class FilmServiceImpl implements FilmService {
         List<Film> popularFilms = jdbcFilmRepository.getPopularFilms(count);
         return popularFilms;
     }
+
     @Override
-    public List<Film> getDirectorFilmsByYear(long id){
+    public List<Film> getDirectorFilmsByYear(long id) {
         List<Film> directorFilmsByYear = jdbcFilmRepository.getDirectorFilmsByYear(id);
         return directorFilmsByYear;
     }
+
     @Override
-    public List<Film> getDirectorFilmsByLikes(long id){
+    public List<Film> getDirectorFilmsByLikes(long id) {
         List<Film> directorFilmsByYear = jdbcFilmRepository.getDirectorFilmByLikes(id);
         return directorFilmsByYear;
     }

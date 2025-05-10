@@ -67,7 +67,7 @@ public class JdbcFilmRepository implements FilmRepository {
             LEFT JOIN genres ON fg.genre_id = genres.genre_id
             WHERE fg.film_id IN (:film_ids)
             """;
-    private static final String SELECT_DIRECTORS_BY_FILM_IDS_QUERY ="""
+    private static final String SELECT_DIRECTORS_BY_FILM_IDS_QUERY = """
             SELECT *
             FROM FILM_DIRECTORS fd
             LEFT JOIN DIRECTORS d  ON fd.DIRECTOR_ID  = d.DIRECTOR_ID
@@ -129,7 +129,7 @@ public class JdbcFilmRepository implements FilmRepository {
         params.addValue("film_id", film.getId());
 
         jdbc.update(CLEAN_GENRES_QUERY, params, keyHolder);
-        jdbc.update(CLEAN_DIRECTORS_QUERY,params,keyHolder);
+        jdbc.update(CLEAN_DIRECTORS_QUERY, params, keyHolder);
 
         if (film.getGenres() != null) {
             setFilmGenres(film);
@@ -184,6 +184,7 @@ public class JdbcFilmRepository implements FilmRepository {
 
         jdbc.batchUpdate(SET_GENRE_QUERY, paramsList, keyHolder);
     }
+
     @Override
     public void setFilmDirectors(Film film) {
         GeneratedKeyHolder keyHolder = new GeneratedKeyHolder();
@@ -208,6 +209,7 @@ public class JdbcFilmRepository implements FilmRepository {
         film.setGenres(filmGenres);
         return filmGenres;
     }
+
     @Override
     public LinkedHashSet<Director> getFilmDirectors(Film film) {
         MapSqlParameterSource params = new MapSqlParameterSource();
@@ -217,6 +219,7 @@ public class JdbcFilmRepository implements FilmRepository {
         film.setDirectors(filmDirectors);
         return filmDirectors;
     }
+
     @Override
     public void connectGenres(Collection<Film> films) {
         List<Long> filmIds = films.stream().map(Film::getId).toList();
@@ -232,8 +235,9 @@ public class JdbcFilmRepository implements FilmRepository {
             filmsMap.get(filmId).getGenres().add(genre);
         }
     }
+
     @Override
-    public void connectDirectors(Collection<Film> films){
+    public void connectDirectors(Collection<Film> films) {
         List<Long> filmIds = films.stream().map(Film::getId).toList();
         MapSqlParameterSource params = new MapSqlParameterSource("film_ids", filmIds);
         SqlRowSet rs = jdbc.queryForRowSet(SELECT_DIRECTORS_BY_FILM_IDS_QUERY, params);
@@ -275,20 +279,22 @@ public class JdbcFilmRepository implements FilmRepository {
         connectDirectors(popularFilms);
         return popularFilms;
     }
+
     @Override
-    public List<Film> getDirectorFilmsByYear(long id){
+    public List<Film> getDirectorFilmsByYear(long id) {
         MapSqlParameterSource params = new MapSqlParameterSource();
-        params.addValue("director_id",id);
-        List<Film> directorFilmsByYear = jdbc.query(GET_DIRECTOR_FILMS_BY_YEAR,params,mapper);
+        params.addValue("director_id", id);
+        List<Film> directorFilmsByYear = jdbc.query(GET_DIRECTOR_FILMS_BY_YEAR, params, mapper);
         connectGenres(directorFilmsByYear);
         connectDirectors(directorFilmsByYear);
         return directorFilmsByYear;
     }
+
     @Override
-    public List<Film> getDirectorFilmByLikes(long id){
+    public List<Film> getDirectorFilmByLikes(long id) {
         MapSqlParameterSource params = new MapSqlParameterSource();
-        params.addValue("director_id",id);
-        List<Film> directorFilmsByYear = jdbc.query(GET_DIRECTOR_FILMS_BY_LIKES,params,mapper);
+        params.addValue("director_id", id);
+        List<Film> directorFilmsByYear = jdbc.query(GET_DIRECTOR_FILMS_BY_LIKES, params, mapper);
         connectGenres(directorFilmsByYear);
         connectDirectors(directorFilmsByYear);
         return directorFilmsByYear;

@@ -20,29 +20,33 @@ public class DirectorController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.OK)
-    public Director create(@RequestBody Director director){
-      return directorService.create(director);
+    public Director create(@RequestBody Director director) {
+        return directorService.create(director);
 
     }
+
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
-    public List<Director> getAll(){
+    public List<Director> getAll() {
         return directorService.getAll();
     }
+
     @GetMapping(path = "/{id}")
     @ResponseStatus(HttpStatus.OK)
-    public Director getById(@PathVariable("id") long id){
+    public Director getById(@PathVariable("id") long id) {
         return directorService.getById(id);
 
     }
+
     @PutMapping
     @ResponseStatus(HttpStatus.OK)
     public Director updateDirector(@Valid @RequestBody Director director) {
         return directorService.update(director);
     }
-    @DeleteMapping(path = "/{id}" )
+
+    @DeleteMapping(path = "/{id}")
     @ResponseStatus(HttpStatus.OK)
-    public void deleteDirector(@PathVariable("id") long id){
+    public void deleteDirector(@PathVariable("id") long id) {
         directorService.delete(id);
     }
 }

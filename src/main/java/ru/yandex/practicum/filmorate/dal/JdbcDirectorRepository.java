@@ -14,7 +14,7 @@ import java.util.stream.Stream;
 
 @Repository
 @RequiredArgsConstructor
-public class JdbcDirectorRepository implements DirectorRepository{
+public class JdbcDirectorRepository implements DirectorRepository {
     private final NamedParameterJdbcOperations jdbc;
     private final DirectorRowMapper mapper;
 
@@ -25,22 +25,23 @@ public class JdbcDirectorRepository implements DirectorRepository{
     private static final String DELETE_DIRECTOR_QUERY = "DELETE FROM directors WHERE director_id = :director_id";
 
     @Override
-    public Director create(Director director){
+    public Director create(Director director) {
         GeneratedKeyHolder keyHolder = new GeneratedKeyHolder();
         MapSqlParameterSource params = new MapSqlParameterSource();
 
-        params.addValue("director_name",director.getName());
-        jdbc.update(CREATE_DIRECTOR_QUERY, params,keyHolder);
+        params.addValue("director_name", director.getName());
+        jdbc.update(CREATE_DIRECTOR_QUERY, params, keyHolder);
         director.setId(keyHolder.getKeyAs(Long.class));
         return director;
     }
 
     @Override
-    public List<Director> getAll(){
+    public List<Director> getAll() {
         return jdbc.query(GET_ALL_DIRECTORS_QUERY, mapper);
     }
+
     @Override
-    public Optional<Director> getById(Long directorId){
+    public Optional<Director> getById(Long directorId) {
         MapSqlParameterSource params = new MapSqlParameterSource();
         params.addValue("director_id", directorId);
         try (Stream<Director> stream = jdbc.queryForStream(GET_BY_ID_QUERY, params, mapper)) {
@@ -48,19 +49,21 @@ public class JdbcDirectorRepository implements DirectorRepository{
         }
 
     }
+
     @Override
-    public Director update(Director director){
+    public Director update(Director director) {
         MapSqlParameterSource params = new MapSqlParameterSource();
         params.addValue("director_name", director.getName());
         params.addValue("director_id", director.getId());
-        jdbc.update(UPDATE_DIRECTOR_QUERY,params);
+        jdbc.update(UPDATE_DIRECTOR_QUERY, params);
         return director;
     }
+
     @Override
-    public void delete(Long id){
+    public void delete(Long id) {
         MapSqlParameterSource params = new MapSqlParameterSource();
-        params.addValue("director_id",id);
-        jdbc.update(DELETE_DIRECTOR_QUERY,params);
+        params.addValue("director_id", id);
+        jdbc.update(DELETE_DIRECTOR_QUERY, params);
 
     }
 }
