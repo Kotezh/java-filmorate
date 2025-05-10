@@ -5,7 +5,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.service.FilmService;
 
@@ -68,6 +67,6 @@ public class FilmController {
     @GetMapping("/director/{directorId}")
     @ResponseStatus(HttpStatus.OK)
     public Collection<Film> getDirectorFilms(@RequestParam(value = "sortBy") final String sort, @PathVariable("directorId") long directorId) {
-        return filmService.getDirectorFilms(directorId,sort);
+        return filmService.getDirectorFilms(directorId, sort);
     }
 }
