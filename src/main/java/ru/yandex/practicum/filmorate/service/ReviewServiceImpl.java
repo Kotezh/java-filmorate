@@ -17,89 +17,81 @@ import java.util.Optional;
 @Slf4j
 @RequiredArgsConstructor
 @Validated
-public class ReviewServiceImpl {
+public class ReviewServiceImpl implements ReviewService {
     private final JdbcReviewRepository jdbcReviewRepository;
     private final JdbcFilmRepository jdbcFilmRepository;
     private final JdbcUserRepository jdbcUserRepository;
 
+    @Override
     public Optional<Review> getReviewById(long reviewId) {
-        if (jdbcReviewRepository.getReviewById(reviewId).isEmpty()) {
-            throw new NotFoundException("Отзыв с id = " + reviewId + " не найден");
-        }
+        checkReviewId(reviewId);
         return jdbcReviewRepository.getReviewById(reviewId);
     }
 
+    @Override
     public List<Review> getAllReviewsByFilmId(long filmId, long count) {
-        if (jdbcFilmRepository.getFilmById(filmId).isEmpty()) {
-            throw new NotFoundException("Фильм с id = " + filmId + " не найден");
-        }
+        checkFilmId(filmId);
         return jdbcReviewRepository.getAllReviewsByFilmId(filmId, count);
     }
 
+    @Override
     public Review create(Review review) {
-        if (jdbcUserRepository.getUserById(review.getUserId()).isEmpty()) {
-            throw new NotFoundException("Пользователь не найден");
-        }
-        if (jdbcFilmRepository.getFilmById(review.getFilmId()).isEmpty()) {
-            throw new NotFoundException("Фильм не найден");
-        }
+        checkUserId(review.getUserId());
+        checkFilmId(review.getFilmId());
         return jdbcReviewRepository.create(review);
     }
 
+    @Override
     public Review update(Review review) {
-        if (jdbcUserRepository.getUserById(review.getUserId()).isEmpty()) {
-            throw new NotFoundException("Пользователь не найден");
-        }
-        if (jdbcFilmRepository.getFilmById(review.getFilmId()).isEmpty()) {
-            throw new NotFoundException("Фильм не найден");
-        }
+        checkUserId(review.getUserId());
+        checkFilmId(review.getFilmId());
         return jdbcReviewRepository.update(review);
     }
 
+    @Override
     public void deleteReview(long reviewId) {
-        if (jdbcReviewRepository.getReviewById(reviewId).isEmpty()) {
-            throw new NotFoundException("Отзыв с id = " + reviewId + " не найден");
-        }
+        checkReviewId(reviewId);
         jdbcReviewRepository.deleteReview(reviewId);
     }
 
+    @Override
     public void addLike(long reviewId, long userId) {
-        if (jdbcReviewRepository.getReviewById(reviewId).isEmpty()) {
-            throw new NotFoundException("Отзыв с id = " + reviewId + " не найден");
-        }
-        if (jdbcUserRepository.getUserById(userId).isEmpty()) {
-            throw new NotFoundException("Пользователь с id = " + reviewId + " не найден");
-        }
+        checkReviewId(reviewId);
+        checkUserId(userId);
         jdbcReviewRepository.addLike(reviewId, userId);
     }
 
+    @Override
     public void addDislike(long reviewId, long userId) {
-        if (jdbcReviewRepository.getReviewById(reviewId).isEmpty()) {
-            throw new NotFoundException("Отзыв с id = " + reviewId + " не найден");
-        }
-        if (jdbcUserRepository.getUserById(userId).isEmpty()) {
-            throw new NotFoundException("Пользователь с id = " + reviewId + " не найден");
-        }
+        checkReviewId(reviewId);
+        checkUserId(userId);
         jdbcReviewRepository.addDislike(reviewId, userId);
     }
 
+    @Override
     public void deleteLike(long reviewId, long userId) {
-        if (jdbcReviewRepository.getReviewById(reviewId).isEmpty()) {
-            throw new NotFoundException("Отзыв с id = " + reviewId + " не найден");
-        }
-        if (jdbcUserRepository.getUserById(userId).isEmpty()) {
-            throw new NotFoundException("Пользователь с id = " + reviewId + " не найден");
-        }
+        checkReviewId(reviewId);
+        checkUserId(userId);
         jdbcReviewRepository.deleteLike(reviewId, userId);
     }
 
+    @Override
     public void deleteDislike(long reviewId, long userId) {
-        if (jdbcReviewRepository.getReviewById(reviewId).isEmpty()) {
-            throw new NotFoundException("Отзыв с id = " + reviewId + " не найден");
-        }
-        if (jdbcUserRepository.getUserById(userId).isEmpty()) {
-            throw new NotFoundException("Пользователь с id = " + reviewId + " не найден");
-        }
+        checkReviewId(reviewId);
+        checkUserId(userId);
         jdbcReviewRepository.deleteDislike(reviewId, userId);
     }
+
+    private void checkUserId(long id) {
+        jdbcUserRepository.getUserById(id).orElseThrow(() -> new NotFoundException("Пользователь не найден"));
+    }
+
+    private void checkFilmId(long id) {
+        jdbcFilmRepository.getFilmById(id).orElseThrow(() -> new NotFoundException("Фильм не найден"));
+    }
+
+    private void checkReviewId(long id) {
+        jdbcReviewRepository.getReviewById(id).orElseThrow(() -> new NotFoundException("Отзыв не найден"));
+    }
+
 }
