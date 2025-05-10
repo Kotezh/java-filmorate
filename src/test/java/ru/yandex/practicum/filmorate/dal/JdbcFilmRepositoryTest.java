@@ -51,6 +51,7 @@ class JdbcFilmRepositoryTest {
         genre.setName("Комедия");
         film.getGenres().add(genre);
         film.setLikesCount(1);
+        film.setDirectors(new LinkedHashSet<>());
 
         return film;
     }
@@ -76,6 +77,7 @@ class JdbcFilmRepositoryTest {
         film.getGenres().add(genre);
 
         film.setLikesCount(1);
+        film.setDirectors(new LinkedHashSet<>());
 
         return film;
     }
@@ -106,6 +108,7 @@ class JdbcFilmRepositoryTest {
         film1.setGenres(new LinkedHashSet<>());
         film1.getGenres().add(genre1);
         film1.setLikesCount(3);
+        film1.setDirectors(new LinkedHashSet<>());
         films.add(film1);
 
         Film film2 = new Film();
@@ -123,6 +126,7 @@ class JdbcFilmRepositoryTest {
         film2.getGenres().add(genre1);
         film2.getGenres().add(genre3);
         film2.setLikesCount(2);
+        film2.setDirectors(new LinkedHashSet<>());
         films.add(film2);
 
         return films;

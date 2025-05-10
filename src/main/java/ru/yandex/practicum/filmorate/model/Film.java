@@ -21,6 +21,7 @@ public class Film {
     private Integer duration;
 
     private LinkedHashSet<Genre> genres;
+    private LinkedHashSet<Director> directors;
     @NotNull
     private Mpa mpa;
     int likesCount;
