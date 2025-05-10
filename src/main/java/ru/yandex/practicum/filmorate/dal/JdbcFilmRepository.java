@@ -291,7 +291,7 @@ public class JdbcFilmRepository implements FilmRepository {
     }
 
     @Override
-    public List<Film> getDirectorFilmByLikes(long id) {
+    public List<Film> getDirectorFilmsByLikes(long id) {
         MapSqlParameterSource params = new MapSqlParameterSource();
         params.addValue("director_id", id);
         List<Film> directorFilmsByYear = jdbc.query(GET_DIRECTOR_FILMS_BY_LIKES, params, mapper);

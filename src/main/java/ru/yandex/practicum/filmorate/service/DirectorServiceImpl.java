@@ -21,9 +21,6 @@ public class DirectorServiceImpl implements DirectorService {
 
     @Override
     public Director create(Director director) {
-        if (director.getName() == null || director.getName().isBlank()) {
-            throw new ValidationException("Некоректное имя режисёра");
-        }
         log.info("Создан новый режисёр");
         return jdbcDirectorRepository.create(director);
     }
@@ -36,7 +33,7 @@ public class DirectorServiceImpl implements DirectorService {
     @Override
     public Director getById(Long directorId) {
         return jdbcDirectorRepository.getById(directorId)
-                        .orElseThrow(() -> new NotFoundException("Некорректный id = " + directorId));
+                .orElseThrow(() -> new NotFoundException("Некорректный id = " + directorId));
     }
 
     @Override

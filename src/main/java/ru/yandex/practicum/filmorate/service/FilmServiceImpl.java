@@ -136,14 +136,14 @@ public class FilmServiceImpl implements FilmService {
     }
 
     @Override
-    public List<Film> getDirectorFilmsByYear(long id) {
-        List<Film> directorFilmsByYear = jdbcFilmRepository.getDirectorFilmsByYear(id);
-        return directorFilmsByYear;
+    public List<Film> getDirectorFilms(long id, String sortBy) {
+        if (sortBy.equals("year")) {
+            return jdbcFilmRepository.getDirectorFilmsByYear(id);
+        } else if (sortBy.equals("likes")) {
+            return jdbcFilmRepository.getDirectorFilmsByLikes(id);
+        } else throw new ValidationException("некорректный запрос");
+
     }
 
-    @Override
-    public List<Film> getDirectorFilmsByLikes(long id) {
-        List<Film> directorFilmsByYear = jdbcFilmRepository.getDirectorFilmByLikes(id);
-        return directorFilmsByYear;
-    }
+
 }

@@ -67,11 +67,7 @@ public class FilmController {
 
     @GetMapping("/director/{directorId}")
     @ResponseStatus(HttpStatus.OK)
-    public Collection<Film> getDirectorFilm(@RequestParam(value = "sortBy") final String sort, @PathVariable("directorId") long directorId) {
-        if (sort.equals("year")) {
-            return filmService.getDirectorFilmsByYear(directorId);
-        } else if (sort.equals("likes")) {
-            return filmService.getDirectorFilmsByLikes(directorId);
-        } else throw new ValidationException("некорректный запрос");
+    public Collection<Film> getDirectorFilms(@RequestParam(value = "sortBy") final String sort, @PathVariable("directorId") long directorId) {
+        return filmService.getDirectorFilms(directorId,sort);
     }
 }

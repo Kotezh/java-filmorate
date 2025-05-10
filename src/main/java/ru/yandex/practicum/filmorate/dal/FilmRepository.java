@@ -40,5 +40,5 @@ public interface FilmRepository {
 
     List<Film> getDirectorFilmsByYear(long id);
 
-    List<Film> getDirectorFilmByLikes(long id);
+    List<Film> getDirectorFilmsByLikes(long id);
 }
