@@ -35,8 +35,8 @@ public class DirectorServiceImpl implements DirectorService {
 
     @Override
     public Director getById(Long directorId) {
-        return jdbcDirectorRepository.getById(directorId).
-                orElseThrow(() -> new NotFoundException("Некорректный id = " + directorId));
+        return jdbcDirectorRepository.getById(directorId)
+                        .orElseThrow(() -> new NotFoundException("Некорректный id = " + directorId));
     }
 
     @Override
