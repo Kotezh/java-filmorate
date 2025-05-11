@@ -149,4 +149,9 @@ public class FilmServiceImpl implements FilmService {
         List<Film> commonFilms = jdbcFilmRepository.getCommonFilms(userId, friendId);
         return commonFilms;
     }
+
+    @Override
+    public List<Film> getSearch(String query, String searchBy) {
+        return jdbcFilmRepository.getSearch(query, searchBy);
+    }
 }

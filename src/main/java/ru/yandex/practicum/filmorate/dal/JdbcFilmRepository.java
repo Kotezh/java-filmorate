@@ -9,6 +9,7 @@ import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.dal.mappers.DirectorRowMapper;
 import ru.yandex.practicum.filmorate.dal.mappers.FilmRowMapper;
 import ru.yandex.practicum.filmorate.dal.mappers.GenreRowMapper;
+import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Director;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
@@ -92,6 +93,18 @@ public class JdbcFilmRepository implements FilmRepository {
             JOIN likes l2 ON l2.film_id = f.film_id AND l2.user_id = :friendId
             GROUP BY f.film_id, r.mpa_name
             ORDER BY f.name;
+            """;
+    private static final String GET_SEARCH = """
+            SELECT f.*, r.mpa_name, COUNT(l.user_id) AS likes_count
+            FROM films f
+            LEFT JOIN likes l ON l.film_id = f.film_id
+            JOIN mpa r ON r.mpa_id = f.mpa_id
+            LEFT JOIN FILM_DIRECTORS fd ON fd.FILM_ID = f.FILM_ID
+            LEFT JOIN DIRECTORS d ON d.DIRECTOR_ID = fd.DIRECTOR_ID
+            WHERE f.NAME LIKE :film_name
+            OR d.DIRECTOR_NAME LIKE :director_name
+            GROUP BY f.film_id, r.mpa_name
+            ORDER BY likes_count DESC
             """;
 
     @Override
@@ -337,5 +350,33 @@ public class JdbcFilmRepository implements FilmRepository {
 
         connectGenres(commonFilms);
         return commonFilms;
+    }
+
+    @Override
+    public List<Film> getSearch(String query, String searchBy) {
+        MapSqlParameterSource params = new MapSqlParameterSource();
+        switch (searchBy) {
+            case "director" -> {
+                params.addValue("film_name", "");
+                params.addValue("director_name", "%" + query + "%");
+            }
+            case "title" -> {
+                params.addValue("film_name", "%" + query + "%");
+                params.addValue("director_name", "");
+            }
+            case "director,title", "title,director" -> {
+                params.addValue("film_name", "%" + query + "%");
+                params.addValue("director_name", "%" + query + "%");
+            }
+            case "defaultSearch" -> {
+                params.addValue("film_name", "%%");
+                params.addValue("director_name", "%%");
+            }
+            default -> throw new ValidationException("некорректный запрос");
+        }
+        List<Film> searchedFilms = jdbc.query(GET_SEARCH, params, mapper);
+        connectGenres(searchedFilms);
+        connectDirectors(searchedFilms);
+        return searchedFilms;
     }
 }
