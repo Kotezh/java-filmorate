@@ -65,4 +65,10 @@ public class FilmController {
                                             @RequestParam(value = "year", required = false) Integer year) {
         return filmService.getPopularFilms(count, genreId, year);
     }
+
+    @GetMapping("/director/{directorId}")
+    @ResponseStatus(HttpStatus.OK)
+    public Collection<Film> getDirectorFilms(@RequestParam(value = "sortBy") final String sort, @PathVariable("directorId") long directorId) {
+        return filmService.getDirectorFilms(directorId, sort);
+    }
 }
