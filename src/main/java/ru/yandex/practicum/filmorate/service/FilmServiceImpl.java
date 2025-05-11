@@ -134,4 +134,13 @@ public class FilmServiceImpl implements FilmService {
         List<Film> popularFilms = jdbcFilmRepository.getPopularFilms(count);
         return popularFilms;
     }
+
+    @Override
+    public List<Film> getDirectorFilms(long id, String sortBy) {
+        if (sortBy.equals("year")) {
+            return jdbcFilmRepository.getDirectorFilmsByYear(id);
+        } else if (sortBy.equals("likes")) {
+            return jdbcFilmRepository.getDirectorFilmsByLikes(id);
+        } else throw new ValidationException("некорректный запрос");
+    }
 }
