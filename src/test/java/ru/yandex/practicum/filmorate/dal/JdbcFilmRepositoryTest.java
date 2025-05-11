@@ -208,6 +208,7 @@ class JdbcFilmRepositoryTest {
                 .orElseThrow(() -> new NotFoundException("Не найден фильм с id = " + TEST_FILM_ID));
 
         assertThat(jdbcFilmRepository.getAllFilms()).hasSize(3);
+        assertThat(jdbcFilmRepository.getPopularFilms(1000, 1L, 2000)).hasSize(1);
         assertThat(filmBeforeDelete)
                 .usingRecursiveComparison()
                 .isEqualTo(getTestFilm());
@@ -215,6 +216,7 @@ class JdbcFilmRepositoryTest {
         jdbcFilmRepository.deleteFilm(TEST_FILM_ID);
 
         assertThat(jdbcFilmRepository.getAllFilms()).hasSize(2);
+        assertThat(jdbcFilmRepository.getPopularFilms(1000, 1L, 2000)).hasSize(0);
     }
 
     @Test
@@ -252,16 +254,13 @@ class JdbcFilmRepositoryTest {
     @Test
     @DisplayName("Должен возвращать сортированный список популярных фильмов")
     void shouldGetPopularFilms() {
-        List<Film> popularFilms = jdbcFilmRepository.getPopularFilms(2);
+        List<Film> popularFilms = jdbcFilmRepository.getPopularFilms(2, 1L, 1950);
         List<Film> filmsTest = getAllTestFilms();
 
-        assertThat(popularFilms).hasSize(2);
+        assertThat(popularFilms).hasSize(1);
 
         assertThat(popularFilms.get(0))
                 .usingRecursiveComparison()
                 .isEqualTo(filmsTest.get(1));
-        assertThat(popularFilms.get(1))
-                .usingRecursiveComparison()
-                .isEqualTo(filmsTest.get(2));
     }
 }
