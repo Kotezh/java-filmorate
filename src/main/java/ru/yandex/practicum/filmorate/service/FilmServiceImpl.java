@@ -145,7 +145,7 @@ public class FilmServiceImpl implements FilmService {
     }
 
     @Override
-    public List<Film> getCommonFilms(long userId, long friendId){
+    public List<Film> getCommonFilms(long userId, long friendId) {
         List<Film> commonFilms = jdbcFilmRepository.getCommonFilms(userId, friendId);
         return commonFilms;
     }
