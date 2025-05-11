@@ -11,7 +11,6 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class Director {
     private Long id;
-    @NotNull(message = "Имя не может быть пустым")
     @NotBlank(message = "Имя не может быть пустым")
     private String name;
 }

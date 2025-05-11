@@ -142,8 +142,5 @@ public class FilmServiceImpl implements FilmService {
         } else if (sortBy.equals("likes")) {
             return jdbcFilmRepository.getDirectorFilmsByLikes(id);
         } else throw new ValidationException("некорректный запрос");
-
     }
-
-
 }

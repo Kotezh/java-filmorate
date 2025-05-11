@@ -299,5 +299,4 @@ public class JdbcFilmRepository implements FilmRepository {
         connectDirectors(directorFilmsByYear);
         return directorFilmsByYear;
     }
-
 }
