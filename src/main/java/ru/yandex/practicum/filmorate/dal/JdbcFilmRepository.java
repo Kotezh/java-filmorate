@@ -84,6 +84,16 @@ public class JdbcFilmRepository implements FilmRepository {
             ORDER BY likes_count DESC
             """;
 
+    private static final String GET_COMMON_FILMS_QUERY = """
+            SELECT f.*, r.mpa_name, COUNT(l1.user_id) AS likes_count
+            FROM films f
+            JOIN mpa r ON r.mpa_id = f.mpa_id
+            JOIN likes l1 ON l1.film_id = f.film_id AND l1.user_id = :userId
+            JOIN likes l2 ON l2.film_id = f.film_id AND l2.user_id = :friendId
+            GROUP BY f.film_id, r.mpa_name
+            ORDER BY f.name;
+            """;
+
     @Override
     public Film create(Film film) {
         GeneratedKeyHolder keyHolder = new GeneratedKeyHolder();
@@ -316,5 +326,16 @@ public class JdbcFilmRepository implements FilmRepository {
         connectGenres(directorFilmsByYear);
         connectDirectors(directorFilmsByYear);
         return directorFilmsByYear;
+    }
+
+    @Override
+    public List<Film> getCommonFilms(long userId, long friendId) {
+        MapSqlParameterSource params = new MapSqlParameterSource();
+        params.addValue("userId", userId);
+        params.addValue("friendId", friendId);
+        List<Film> commonFilms = jdbc.query(GET_COMMON_FILMS_QUERY, params, mapper);
+
+        connectGenres(commonFilms);
+        return commonFilms;
     }
 }

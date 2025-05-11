@@ -143,4 +143,10 @@ public class FilmServiceImpl implements FilmService {
             return jdbcFilmRepository.getDirectorFilmsByLikes(id);
         } else throw new ValidationException("некорректный запрос");
     }
+
+    @Override
+    public List<Film> getCommonFilms(long userId, long friendId) {
+        List<Film> commonFilms = jdbcFilmRepository.getCommonFilms(userId, friendId);
+        return commonFilms;
+    }
 }
