@@ -69,17 +69,10 @@ public class ReviewServiceImpl implements ReviewService {
     }
 
     @Override
-    public void deleteLike(long reviewId, long userId) {
+    public void deleteReaction(long reviewId, long userId) {
         checkReviewId(reviewId);
         checkUserId(userId);
-        jdbcReviewRepository.deleteLike(reviewId, userId);
-    }
-
-    @Override
-    public void deleteDislike(long reviewId, long userId) {
-        checkReviewId(reviewId);
-        checkUserId(userId);
-        jdbcReviewRepository.deleteDislike(reviewId, userId);
+        jdbcReviewRepository.deleteReaction(reviewId, userId);
     }
 
     private void checkUserId(long id) {

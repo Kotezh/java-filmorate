@@ -20,7 +20,6 @@ public interface ReviewService {
 
     public void addDislike(long reviewId, long userId);
 
-    public void deleteLike(long reviewId, long userId);
+    public void deleteReaction(long reviewId, long userId);
 
-    public void deleteDislike(long reviewId, long userId);
 }

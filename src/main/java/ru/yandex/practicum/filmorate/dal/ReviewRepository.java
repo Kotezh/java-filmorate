@@ -20,7 +20,6 @@ public interface ReviewRepository {
 
     void addDislike(long reviewId, long userId);
 
-    void deleteLike(long reviewId, long userId);
+    void deleteReaction(long reviewId, long userId);
 
-    void deleteDislike(long reviewId, long userId);
 }

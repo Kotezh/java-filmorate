@@ -129,7 +129,7 @@ public class JdbcReviewRepository implements ReviewRepository {
 
     @Override
     public void addLike(long reviewId, long userId) {
-        deleteLike(reviewId, userId);
+        deleteReaction(reviewId, userId);
         MapSqlParameterSource params = new MapSqlParameterSource();
         params.addValue("reviewId", reviewId);
         params.addValue("userId", userId);
@@ -138,7 +138,7 @@ public class JdbcReviewRepository implements ReviewRepository {
 
     @Override
     public void addDislike(long reviewId, long userId) {
-        deleteLike(reviewId, userId);
+        deleteReaction(reviewId, userId);
         MapSqlParameterSource params = new MapSqlParameterSource();
         params.addValue("reviewId", reviewId);
         params.addValue("userId", userId);
@@ -146,15 +146,11 @@ public class JdbcReviewRepository implements ReviewRepository {
     }
 
     @Override
-    public void deleteLike(long reviewId, long userId) {
+    public void deleteReaction(long reviewId, long userId) {
         MapSqlParameterSource params = new MapSqlParameterSource();
         params.addValue("reviewId", reviewId);
         params.addValue("userId", userId);
         jdbc.update(DELETE_LIKE_REVIEW, params);
     }
 
-    @Override
-    public void deleteDislike(long reviewId, long userId) {
-        deleteLike(reviewId, userId);
-    }
 }
