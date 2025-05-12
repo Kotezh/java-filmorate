@@ -4,10 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
-import ru.yandex.practicum.filmorate.dal.JdbcFilmRepository;
-import ru.yandex.practicum.filmorate.dal.JdbcGenreRepository;
-import ru.yandex.practicum.filmorate.dal.JdbcMpaRepository;
-import ru.yandex.practicum.filmorate.dal.JdbcUserRepository;
+import ru.yandex.practicum.filmorate.dal.*;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
@@ -26,6 +23,7 @@ public class FilmServiceImpl implements FilmService {
     private final JdbcUserRepository jdbcUserRepository;
     private final JdbcGenreRepository jdbcGenreRepository;
     private final JdbcMpaRepository jdbcMpaRepository;
+    private final JdbcDirectorRepository jdbcDirectorRepository;
 
     @Override
     public Film getFilmById(long filmId) {
@@ -137,6 +135,8 @@ public class FilmServiceImpl implements FilmService {
 
     @Override
     public List<Film> getDirectorFilms(long id, String sortBy) {
+        jdbcDirectorRepository.getById(id)
+                .orElseThrow(() -> new NotFoundException("Режиссёр с id = " + id + " не найден"));
         if (sortBy.equals("year")) {
             return jdbcFilmRepository.getDirectorFilmsByYear(id);
         } else if (sortBy.equals("likes")) {
