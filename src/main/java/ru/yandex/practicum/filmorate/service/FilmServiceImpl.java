@@ -130,8 +130,8 @@ public class FilmServiceImpl implements FilmService {
     }
 
     @Override
-    public List<Film> getPopularFilms(int count) {
-        List<Film> popularFilms = jdbcFilmRepository.getPopularFilms(count);
+    public List<Film> getPopularFilms(int count, Long genreId, Integer year) {
+        List<Film> popularFilms = jdbcFilmRepository.getPopularFilms(count, genreId, year);
         return popularFilms;
     }
 
@@ -142,5 +142,11 @@ public class FilmServiceImpl implements FilmService {
         } else if (sortBy.equals("likes")) {
             return jdbcFilmRepository.getDirectorFilmsByLikes(id);
         } else throw new ValidationException("некорректный запрос");
+    }
+
+    @Override
+    public List<Film> getCommonFilms(long userId, long friendId) {
+        List<Film> commonFilms = jdbcFilmRepository.getCommonFilms(userId, friendId);
+        return commonFilms;
     }
 }

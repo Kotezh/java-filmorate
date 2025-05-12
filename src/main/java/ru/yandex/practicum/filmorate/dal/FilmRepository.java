@@ -36,9 +36,11 @@ public interface FilmRepository {
 
     LinkedHashSet<Genre> getFilmGenres(Film film);
 
-    List<Film> getPopularFilms(int count);
+    List<Film> getPopularFilms(int count, Long genreId, Integer year);
 
     List<Film> getDirectorFilmsByYear(long id);
 
     List<Film> getDirectorFilmsByLikes(long id);
+
+    List<Film> getCommonFilms(long userId, long friendId);
 }
