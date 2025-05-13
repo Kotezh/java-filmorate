@@ -138,11 +138,11 @@ public class JdbcReviewRepository implements ReviewRepository {
         jdbc.update(CREATE_REVIEW, params, keyHolder);
         review.setReviewId(keyHolder.getKeyAs(Long.class));
 
-        MapSqlParameterSource params2 = new MapSqlParameterSource();
-        params2.addValue("userId", review.getUserId());
-        params2.addValue("entityId", review.getReviewId());
+        MapSqlParameterSource paramsActivity = new MapSqlParameterSource();
+        paramsActivity.addValue("userId", review.getUserId());
+        paramsActivity.addValue("entityId", review.getReviewId());
 
-        jdbc.update(ACTIVITY_REVIEW_CREATE, params2);
+        jdbc.update(ACTIVITY_REVIEW_CREATE, paramsActivity);
 
         return review;
     }
@@ -161,11 +161,11 @@ public class JdbcReviewRepository implements ReviewRepository {
 
         jdbc.update(UPDATE_REVIEW, params, keyHolder);
 
-        MapSqlParameterSource params2 = new MapSqlParameterSource();
-        params2.addValue("userId", review.getUserId());
-        params2.addValue("entityId", review.getReviewId());
+        MapSqlParameterSource paramsActivity = new MapSqlParameterSource();
+        paramsActivity.addValue("userId", review.getUserId());
+        paramsActivity.addValue("entityId", review.getReviewId());
 
-        jdbc.update(ACTIVITY_REVIEW_UPDATE, params2);
+        jdbc.update(ACTIVITY_REVIEW_UPDATE, paramsActivity);
 
         return review;
     }
@@ -176,11 +176,11 @@ public class JdbcReviewRepository implements ReviewRepository {
         params.addValue("reviewId", reviewId);
 
         Optional<Review> review = getReviewById(reviewId);
-        MapSqlParameterSource params2 = new MapSqlParameterSource();
-        params2.addValue("userId", review.get().getUserId());
-        params2.addValue("entityId", review.get().getReviewId());
+        MapSqlParameterSource paramsActivity = new MapSqlParameterSource();
+        paramsActivity.addValue("userId", review.get().getUserId());
+        paramsActivity.addValue("entityId", review.get().getReviewId());
 
-        jdbc.update(ACTIVITY_REVIEW_DELETE, params2);
+        jdbc.update(ACTIVITY_REVIEW_DELETE, paramsActivity);
         jdbc.update(DELETE_REVIEW, params);
     }
 
@@ -192,11 +192,11 @@ public class JdbcReviewRepository implements ReviewRepository {
         params.addValue("userId", userId);
         jdbc.update(ADD_LIKE_REVIEW, params);
 
-        MapSqlParameterSource params2 = new MapSqlParameterSource();
-        params2.addValue("userId", userId);
-        params2.addValue("entityId", reviewId);
+        MapSqlParameterSource paramsActivity = new MapSqlParameterSource();
+        paramsActivity.addValue("userId", userId);
+        paramsActivity.addValue("entityId", reviewId);
 
-        jdbc.update(ACTIVITY_REVIEW_ADD_LIKE, params2);
+        jdbc.update(ACTIVITY_REVIEW_ADD_LIKE, paramsActivity);
     }
 
     @Override
@@ -207,11 +207,11 @@ public class JdbcReviewRepository implements ReviewRepository {
         params.addValue("userId", userId);
         jdbc.update(ADD_DISLIKE_REVIEW, params);
 
-        MapSqlParameterSource params2 = new MapSqlParameterSource();
-        params2.addValue("userId", userId);
-        params2.addValue("entityId", reviewId);
+        MapSqlParameterSource paramsActivity = new MapSqlParameterSource();
+        paramsActivity.addValue("userId", userId);
+        paramsActivity.addValue("entityId", reviewId);
 
-        jdbc.update(ACTIVITY_REVIEW_ADD_DISLIKE, params2);
+        jdbc.update(ACTIVITY_REVIEW_ADD_DISLIKE, paramsActivity);
     }
 
     @Override
@@ -221,11 +221,11 @@ public class JdbcReviewRepository implements ReviewRepository {
         params.addValue("userId", userId);
         jdbc.update(DELETE_LIKE_REVIEW, params);
 
-        MapSqlParameterSource params2 = new MapSqlParameterSource();
-        params2.addValue("userId", userId);
-        params2.addValue("entityId", reviewId);
+        MapSqlParameterSource paramsActivity = new MapSqlParameterSource();
+        paramsActivity.addValue("userId", userId);
+        paramsActivity.addValue("entityId", reviewId);
 
-        jdbc.update(ACTIVITY_REVIEW_DELETE_REACTION, params2);
+        jdbc.update(ACTIVITY_REVIEW_DELETE_REACTION, paramsActivity);
     }
 
 }

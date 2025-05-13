@@ -8,7 +8,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 @Component
-public class ActivityrRowMapper implements RowMapper<Activity> {
+public class ActivityRowMapper implements RowMapper<Activity> {
     @Override
     public Activity mapRow(ResultSet rs, int rowNum) throws SQLException {
         Activity activity = new Activity();

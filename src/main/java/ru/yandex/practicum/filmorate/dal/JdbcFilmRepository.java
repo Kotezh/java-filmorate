@@ -276,11 +276,11 @@ public class JdbcFilmRepository implements FilmRepository {
         params.addValue("film_id", filmId);
         jdbc.update(ADD_LIKE_QUERY, params, keyHolder);
 
-        MapSqlParameterSource params2 = new MapSqlParameterSource();
-        params2.addValue("userId", userId);
-        params2.addValue("entityId", filmId);
+        MapSqlParameterSource paramsActivity = new MapSqlParameterSource();
+        paramsActivity.addValue("userId", userId);
+        paramsActivity.addValue("entityId", filmId);
 
-        jdbc.update(ACTIVITY_FILM_LIKE, params2);
+        jdbc.update(ACTIVITY_FILM_LIKE, paramsActivity);
     }
 
     @Override
@@ -291,11 +291,11 @@ public class JdbcFilmRepository implements FilmRepository {
         params.addValue("film_id", filmId);
         jdbc.update(DELETE_LIKE_QUERY, params, keyHolder);
 
-        MapSqlParameterSource params2 = new MapSqlParameterSource();
-        params2.addValue("userId", userId);
-        params2.addValue("entityId", filmId);
+        MapSqlParameterSource paramsActivity = new MapSqlParameterSource();
+        paramsActivity.addValue("userId", userId);
+        paramsActivity.addValue("entityId", filmId);
 
-        jdbc.update(ACTIVITY_FILM_LIKE_DELETE, params2);
+        jdbc.update(ACTIVITY_FILM_LIKE_DELETE, paramsActivity);
     }
 
     @Override

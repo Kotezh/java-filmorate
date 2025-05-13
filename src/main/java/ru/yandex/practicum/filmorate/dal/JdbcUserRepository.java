@@ -6,7 +6,7 @@ import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcOperations;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.stereotype.Repository;
-import ru.yandex.practicum.filmorate.dal.mappers.ActivityrRowMapper;
+import ru.yandex.practicum.filmorate.dal.mappers.ActivityRowMapper;
 import ru.yandex.practicum.filmorate.model.Activity;
 import ru.yandex.practicum.filmorate.model.User;
 
@@ -20,7 +20,7 @@ import java.util.stream.Stream;
 public class JdbcUserRepository implements UserRepository {
     private final NamedParameterJdbcOperations jdbc;
     private final RowMapper<User> mapper;
-    private final ActivityrRowMapper activityrRowMapper;
+    private final ActivityRowMapper activityRowMapper;
 
     private static final String CREATE_USER_QUERY = "INSERT INTO users (login, email, name, birthday) VALUES(:login,:email,:name,:birthday)";
     private static final String UPDATE_USER_QUERY = "UPDATE users SET login=:login, email=:email, name=:name, birthday=:birthday WHERE user_id=:user_id";
@@ -52,9 +52,9 @@ public class JdbcUserRepository implements UserRepository {
 
     @Override
     public List<Activity> getActivityById(long userId) {
-        MapSqlParameterSource params = new MapSqlParameterSource();
-        params.addValue("userId", userId);
-        return jdbc.query(GET_ACTIVITY_BY_USER_ID, params, activityrRowMapper);
+        MapSqlParameterSource paramsActivity = new MapSqlParameterSource();
+        paramsActivity.addValue("userId", userId);
+        return jdbc.query(GET_ACTIVITY_BY_USER_ID, paramsActivity, activityRowMapper);
     }
 
     @Override
@@ -112,10 +112,10 @@ public class JdbcUserRepository implements UserRepository {
         params.addValue("friend_id", friendId);
         jdbc.update(ADD_FRIEND_QUERY, params, keyHolder);
 
-        MapSqlParameterSource params2 = new MapSqlParameterSource();
-        params2.addValue("userId", userId);
-        params2.addValue("entityId", friendId);
-        jdbc.update(ACTIVITY_FRIEND_ADD, params2);
+        MapSqlParameterSource paramsActivity = new MapSqlParameterSource();
+        paramsActivity.addValue("userId", userId);
+        paramsActivity.addValue("entityId", friendId);
+        jdbc.update(ACTIVITY_FRIEND_ADD, paramsActivity);
     }
 
     @Override
@@ -126,10 +126,10 @@ public class JdbcUserRepository implements UserRepository {
         params.addValue("friend_id", friendId);
         jdbc.update(DELETE_FRIEND_QUERY, params, keyHolder);
 
-        MapSqlParameterSource params2 = new MapSqlParameterSource();
-        params2.addValue("userId", userId);
-        params2.addValue("entityId", friendId);
-        jdbc.update(ACTIVITY_FRIEND_DELETE, params2);
+        MapSqlParameterSource paramsActivity = new MapSqlParameterSource();
+        paramsActivity.addValue("userId", userId);
+        paramsActivity.addValue("entityId", friendId);
+        jdbc.update(ACTIVITY_FRIEND_DELETE, paramsActivity);
     }
 
     @Override
