@@ -8,6 +8,7 @@ import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.dal.mappers.ReviewRowMapper;
 import ru.yandex.practicum.filmorate.model.Review;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
@@ -71,6 +72,43 @@ public class JdbcReviewRepository implements ReviewRepository {
             WHERE reviewId=:reviewId AND userId=:userId
             """;
 
+    private static final String ACTIVITY_GENERAL =
+            "INSERT INTO activity (userId, entityId, eventType, operation, timestamp)";
+
+    private static final String ACTIVITY_REVIEW_CREATE = ACTIVITY_GENERAL +
+            """
+                    VALUES(:userId, :entityId, 'REVIEW', 'ADD',
+                    """ + instantOfSecond() + ")";
+
+    private static final String ACTIVITY_REVIEW_UPDATE = ACTIVITY_GENERAL +
+            """
+                    VALUES(:userId, :entityId, 'REVIEW', 'UPDATE',
+                    """ + instantOfSecond() + ")";
+
+    private static final String ACTIVITY_REVIEW_DELETE = ACTIVITY_GENERAL +
+            """
+                    VALUES(:userId, :entityId, 'REVIEW', 'REMOVE',
+                    """ + instantOfSecond() + ")";
+
+
+    private static final String ACTIVITY_REVIEW_ADD_LIKE = ACTIVITY_GENERAL +
+            """
+                    VALUES(:userId, :entityId, 'LIKE', 'ADD',
+                    """ + instantOfSecond() + ")";
+
+    private static final String ACTIVITY_REVIEW_ADD_DISLIKE = ACTIVITY_GENERAL +
+            """
+                    VALUES(:userId, :entityId, 'DISLIKE', 'ADD',
+                    """ + instantOfSecond() + ")";
+
+    private static final String ACTIVITY_REVIEW_DELETE_REACTION = ACTIVITY_GENERAL +
+            """
+                    VALUES(:userId, :entityId, 'LIKE', 'REMOVE',
+                    """ + instantOfSecond() + ")";
+
+    private static long instantOfSecond() {
+        return Instant.now().toEpochMilli();
+    }
 
     @Override
     public Optional<Review> getReviewById(long reviewId) {
@@ -100,6 +138,12 @@ public class JdbcReviewRepository implements ReviewRepository {
         jdbc.update(CREATE_REVIEW, params, keyHolder);
         review.setReviewId(keyHolder.getKeyAs(Long.class));
 
+        MapSqlParameterSource params2 = new MapSqlParameterSource();
+        params2.addValue("userId", review.getUserId());
+        params2.addValue("entityId", review.getReviewId());
+
+        jdbc.update(ACTIVITY_REVIEW_CREATE, params2);
+
         return review;
     }
 
@@ -117,6 +161,12 @@ public class JdbcReviewRepository implements ReviewRepository {
 
         jdbc.update(UPDATE_REVIEW, params, keyHolder);
 
+        MapSqlParameterSource params2 = new MapSqlParameterSource();
+        params2.addValue("userId", review.getUserId());
+        params2.addValue("entityId", review.getReviewId());
+
+        jdbc.update(ACTIVITY_REVIEW_UPDATE, params2);
+
         return review;
     }
 
@@ -124,6 +174,13 @@ public class JdbcReviewRepository implements ReviewRepository {
     public void deleteReview(long reviewId) {
         MapSqlParameterSource params = new MapSqlParameterSource();
         params.addValue("reviewId", reviewId);
+
+        Optional<Review> review = getReviewById(reviewId);
+        MapSqlParameterSource params2 = new MapSqlParameterSource();
+        params2.addValue("userId", review.get().getUserId());
+        params2.addValue("entityId", review.get().getReviewId());
+
+        jdbc.update(ACTIVITY_REVIEW_DELETE, params2);
         jdbc.update(DELETE_REVIEW, params);
     }
 
@@ -134,6 +191,12 @@ public class JdbcReviewRepository implements ReviewRepository {
         params.addValue("reviewId", reviewId);
         params.addValue("userId", userId);
         jdbc.update(ADD_LIKE_REVIEW, params);
+
+        MapSqlParameterSource params2 = new MapSqlParameterSource();
+        params2.addValue("userId", userId);
+        params2.addValue("entityId", reviewId);
+
+        jdbc.update(ACTIVITY_REVIEW_ADD_LIKE, params2);
     }
 
     @Override
@@ -143,6 +206,12 @@ public class JdbcReviewRepository implements ReviewRepository {
         params.addValue("reviewId", reviewId);
         params.addValue("userId", userId);
         jdbc.update(ADD_DISLIKE_REVIEW, params);
+
+        MapSqlParameterSource params2 = new MapSqlParameterSource();
+        params2.addValue("userId", userId);
+        params2.addValue("entityId", reviewId);
+
+        jdbc.update(ACTIVITY_REVIEW_ADD_DISLIKE, params2);
     }
 
     @Override
@@ -151,6 +220,12 @@ public class JdbcReviewRepository implements ReviewRepository {
         params.addValue("reviewId", reviewId);
         params.addValue("userId", userId);
         jdbc.update(DELETE_LIKE_REVIEW, params);
+
+        MapSqlParameterSource params2 = new MapSqlParameterSource();
+        params2.addValue("userId", userId);
+        params2.addValue("entityId", reviewId);
+
+        jdbc.update(ACTIVITY_REVIEW_DELETE_REACTION, params2);
     }
 
 }

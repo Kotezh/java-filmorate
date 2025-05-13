@@ -7,9 +7,11 @@ import org.springframework.validation.annotation.Validated;
 import ru.yandex.practicum.filmorate.dal.JdbcUserRepository;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
+import ru.yandex.practicum.filmorate.model.Activity;
 import ru.yandex.practicum.filmorate.model.User;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 
 @Service
 @Slf4j
@@ -17,6 +19,11 @@ import java.util.*;
 @Validated
 public class UserServiceImpl implements UserService {
     private final JdbcUserRepository jdbcUserRepository;
+
+    @Override
+    public List<Activity> getActivityById(long userId) {
+        return jdbcUserRepository.getActivityById(userId);
+    }
 
     @Override
     public User getUserById(long userId) {

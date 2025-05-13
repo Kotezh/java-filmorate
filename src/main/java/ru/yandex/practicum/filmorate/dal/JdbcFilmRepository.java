@@ -13,6 +13,7 @@ import ru.yandex.practicum.filmorate.model.Director;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
 
+import java.time.Instant;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -93,6 +94,23 @@ public class JdbcFilmRepository implements FilmRepository {
             GROUP BY f.film_id, r.mpa_name
             ORDER BY f.name;
             """;
+
+    private static final String ACTIVITY_GENERAL =
+            "INSERT INTO activity (userId, entityId, eventType, operation, timestamp)";
+
+    private static final String ACTIVITY_FILM_LIKE = ACTIVITY_GENERAL +
+            """
+                    VALUES(:userId, :entityId, 'LIKE', 'ADD',
+                    """ + instantOfSecond() + ")";
+
+    private static final String ACTIVITY_FILM_LIKE_DELETE = ACTIVITY_GENERAL +
+            """
+                    VALUES(:userId, :entityId, 'LIKE', 'REMOVE',
+                    """ + instantOfSecond() + ")";
+
+    private static long instantOfSecond() {
+        return Instant.now().toEpochMilli();
+    }
 
     @Override
     public Film create(Film film) {
@@ -258,6 +276,12 @@ public class JdbcFilmRepository implements FilmRepository {
         params.addValue("user_id", userId);
         params.addValue("film_id", filmId);
         jdbc.update(ADD_LIKE_QUERY, params, keyHolder);
+
+        MapSqlParameterSource params2 = new MapSqlParameterSource();
+        params2.addValue("userId", userId);
+        params2.addValue("entityId", filmId);
+
+        jdbc.update(ACTIVITY_FILM_LIKE, params2);
     }
 
     @Override
@@ -267,6 +291,12 @@ public class JdbcFilmRepository implements FilmRepository {
         params.addValue("user_id", userId);
         params.addValue("film_id", filmId);
         jdbc.update(DELETE_LIKE_QUERY, params, keyHolder);
+
+        MapSqlParameterSource params2 = new MapSqlParameterSource();
+        params2.addValue("userId", userId);
+        params2.addValue("entityId", filmId);
+
+        jdbc.update(ACTIVITY_FILM_LIKE_DELETE, params2);
     }
 
     @Override

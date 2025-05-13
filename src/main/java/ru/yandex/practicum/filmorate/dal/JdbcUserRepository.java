@@ -6,9 +6,13 @@ import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcOperations;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.stereotype.Repository;
+import ru.yandex.practicum.filmorate.dal.mappers.ActivityrRowMapper;
+import ru.yandex.practicum.filmorate.model.Activity;
 import ru.yandex.practicum.filmorate.model.User;
 
-import java.util.*;
+import java.time.Instant;
+import java.util.List;
+import java.util.Optional;
 import java.util.stream.Stream;
 
 @Repository
@@ -16,6 +20,7 @@ import java.util.stream.Stream;
 public class JdbcUserRepository implements UserRepository {
     private final NamedParameterJdbcOperations jdbc;
     private final RowMapper<User> mapper;
+    private final ActivityrRowMapper activityrRowMapper;
 
     private static final String CREATE_USER_QUERY = "INSERT INTO users (login, email, name, birthday) VALUES(:login,:email,:name,:birthday)";
     private static final String UPDATE_USER_QUERY = "UPDATE users SET login=:login, email=:email, name=:name, birthday=:birthday WHERE user_id=:user_id";
@@ -28,6 +33,29 @@ public class JdbcUserRepository implements UserRepository {
     private static final String FIND_COMMON_FRIENDS = "SELECT u.* FROM users u JOIN friends f1 ON u.user_id = f1.friend_id "
             + "JOIN friends f2 ON u.user_id = f2.friend_id WHERE f1.user_id = :user_id AND f2.user_id = :other_id";
     private static final String FIND_USERS_BY_IDS_QUERY = "SELECT * FROM users WHERE user_id IN (:ids)";
+
+    private static final String ACTIVITY_GENERAL =
+            "INSERT INTO activity (userId, entityId, eventType, operation, timestamp) ";
+    private static final String ACTIVITY_FRIEND_ADD = ACTIVITY_GENERAL +
+            """
+                    VALUES(:userId, :entityId, 'FRIEND', 'ADD',
+                    """ + instantOfSecond() + ")";
+    private static final String ACTIVITY_FRIEND_DELETE = ACTIVITY_GENERAL +
+            """
+                    VALUES(:userId, :entityId, 'FRIEND', 'REMOVE',
+                    """ + instantOfSecond() + ")";
+    private static final String GET_ACTIVITY_BY_USER_ID = "SELECT * FROM activity WHERE userId = :userId";
+
+    private static long instantOfSecond() {
+        return Instant.now().toEpochMilli();
+    }
+
+    @Override
+    public List<Activity> getActivityById(long userId) {
+        MapSqlParameterSource params = new MapSqlParameterSource();
+        params.addValue("userId", userId);
+        return jdbc.query(GET_ACTIVITY_BY_USER_ID, params, activityrRowMapper);
+    }
 
     @Override
     public User create(User user) {
@@ -83,6 +111,11 @@ public class JdbcUserRepository implements UserRepository {
         params.addValue("user_id", userId);
         params.addValue("friend_id", friendId);
         jdbc.update(ADD_FRIEND_QUERY, params, keyHolder);
+
+        MapSqlParameterSource params2 = new MapSqlParameterSource();
+        params2.addValue("userId", userId);
+        params2.addValue("entityId", friendId);
+        jdbc.update(ACTIVITY_FRIEND_ADD, params2);
     }
 
     @Override
@@ -92,6 +125,11 @@ public class JdbcUserRepository implements UserRepository {
         params.addValue("user_id", userId);
         params.addValue("friend_id", friendId);
         jdbc.update(DELETE_FRIEND_QUERY, params, keyHolder);
+
+        MapSqlParameterSource params2 = new MapSqlParameterSource();
+        params2.addValue("userId", userId);
+        params2.addValue("entityId", friendId);
+        jdbc.update(ACTIVITY_FRIEND_DELETE, params2);
     }
 
     @Override
