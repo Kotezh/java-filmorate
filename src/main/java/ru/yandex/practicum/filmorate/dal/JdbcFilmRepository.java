@@ -155,7 +155,6 @@ public class JdbcFilmRepository implements FilmRepository {
         if (film.getDirectors() != null) {
             setFilmDirectors(film);
         }
-        film.setGenres(new LinkedHashSet<>());
         jdbc.update(UPDATE_FILM_QUERY, params, keyHolder);
 
         return film;
