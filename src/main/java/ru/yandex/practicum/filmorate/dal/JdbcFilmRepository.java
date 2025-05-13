@@ -101,8 +101,8 @@ public class JdbcFilmRepository implements FilmRepository {
             JOIN mpa r ON r.mpa_id = f.mpa_id
             LEFT JOIN FILM_DIRECTORS fd ON fd.FILM_ID = f.FILM_ID
             LEFT JOIN DIRECTORS d ON d.DIRECTOR_ID = fd.DIRECTOR_ID
-            WHERE f.NAME LIKE :film_name
-            OR d.DIRECTOR_NAME LIKE :director_name
+            WHERE LOWER(f.NAME) LIKE LOWER(:film_name)
+            OR LOWER(d.DIRECTOR_NAME) LIKE LOWER(:director_name)
             GROUP BY f.film_id, r.mpa_name
             ORDER BY likes_count DESC
             """;
