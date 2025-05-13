@@ -336,6 +336,7 @@ public class JdbcFilmRepository implements FilmRepository {
         List<Film> commonFilms = jdbc.query(GET_COMMON_FILMS_QUERY, params, mapper);
 
         connectGenres(commonFilms);
+        connectDirectors(commonFilms);
         return commonFilms;
     }
 }
