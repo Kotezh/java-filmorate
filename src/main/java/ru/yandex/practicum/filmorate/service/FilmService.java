@@ -24,4 +24,6 @@ public interface FilmService {
     List<Film> getDirectorFilms(long id, String sortBy);
 
     List<Film> getCommonFilms(long userId, long friendId);
+
+    List<Film> getSearch(String query, String searchBy);
 }
