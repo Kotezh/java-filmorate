@@ -20,7 +20,7 @@ public class DirectorController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.OK)
-    public Director create(@RequestBody Director director) {
+    public Director create(@Valid @RequestBody Director director) {
         return directorService.create(director);
     }
 
