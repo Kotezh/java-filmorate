@@ -7,7 +7,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.model.Activity;
+import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.service.RecommendationService;
 import ru.yandex.practicum.filmorate.service.UserServiceImpl;
 
 import java.util.Collection;
@@ -20,6 +22,7 @@ import java.util.List;
 @Validated
 public class UserController {
     private final UserServiceImpl userService;
+    private final RecommendationService recommendationService;
 
     @GetMapping("/{userId}/feed")
     @ResponseStatus(HttpStatus.OK)
@@ -79,5 +82,11 @@ public class UserController {
     @ResponseStatus(HttpStatus.OK)
     public Collection<User> getCommonFriends(@PathVariable("userId") long userId, @PathVariable("otherId") long otherId) {
         return userService.getCommonFriends(userId, otherId);
+    }
+
+    @GetMapping("/{userId}/recommendations")
+    @ResponseStatus(HttpStatus.OK)
+    public List<Film> getUserRecommendations(@PathVariable("userId") long userId) {
+        return recommendationService.getRecommendations(userId);
     }
 }
