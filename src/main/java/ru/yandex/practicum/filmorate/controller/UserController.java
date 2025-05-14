@@ -6,10 +6,12 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import ru.yandex.practicum.filmorate.model.Activity;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.service.UserServiceImpl;
 
 import java.util.Collection;
+import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -18,6 +20,12 @@ import java.util.Collection;
 @Validated
 public class UserController {
     private final UserServiceImpl userService;
+
+    @GetMapping("/{userId}/feed")
+    @ResponseStatus(HttpStatus.OK)
+    public List<Activity> getActivityByUserId(@PathVariable long userId) {
+        return userService.getActivityById(userId);
+    }
 
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
