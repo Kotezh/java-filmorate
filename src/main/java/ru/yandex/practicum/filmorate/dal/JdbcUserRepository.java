@@ -51,6 +51,14 @@ public class JdbcUserRepository implements UserRepository {
             EventType.FRIEND + "','" + OperationType.REMOVE + "', " + instantOfMilliSecond() + ")";
 
     private static final String GET_ACTIVITY_BY_USER_ID = "SELECT * FROM activity WHERE userId = :userId";
+    private static final String GET_ACTIVITY_BY_USER_FRIEND = """
+            SELECT a.*
+            FROM activity a
+            WHERE a.userId IN (
+                SELECT friend_id FROM friends WHERE user_id = :userId
+            )
+            ORDER BY a.timestamp DESC;
+            """;
 
     private static long instantOfMilliSecond() {
         return Instant.now().toEpochMilli();
@@ -107,7 +115,6 @@ public class JdbcUserRepository implements UserRepository {
     @Override
     public List<User> getAllUsers() {
         return jdbc.query(GET_ALL_USERS_QUERY, mapper);
-
     }
 
     @Override

@@ -1,6 +1,8 @@
 package ru.yandex.practicum.filmorate.dal;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcOperations;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
@@ -21,6 +23,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+@Slf4j
 @Repository
 @RequiredArgsConstructor
 public class JdbcFilmRepository implements FilmRepository {
@@ -281,17 +284,20 @@ public class JdbcFilmRepository implements FilmRepository {
 
     @Override
     public void addLike(long filmId, long userId) {
-        GeneratedKeyHolder keyHolder = new GeneratedKeyHolder();
-        MapSqlParameterSource params = new MapSqlParameterSource();
-        params.addValue("user_id", userId);
-        params.addValue("film_id", filmId);
-        jdbc.update(ADD_LIKE_QUERY, params, keyHolder);
+        try {
+            MapSqlParameterSource params = new MapSqlParameterSource();
+            params.addValue("user_id", userId);
+            params.addValue("film_id", filmId);
+            jdbc.update(ADD_LIKE_QUERY, params);
 
-        MapSqlParameterSource paramsActivity = new MapSqlParameterSource();
-        paramsActivity.addValue("userId", userId);
-        paramsActivity.addValue("entityId", filmId);
+            MapSqlParameterSource paramsActivity = new MapSqlParameterSource();
+            paramsActivity.addValue("userId", userId);
+            paramsActivity.addValue("entityId", filmId);
 
-        jdbc.update(ACTIVITY_FILM_LIKE, paramsActivity);
+            jdbc.update(ACTIVITY_FILM_LIKE, paramsActivity);
+        } catch (DataIntegrityViolationException ex) {
+            log.debug("Лайк уже существует: userId={}, filmId={}", userId, filmId);
+        }
     }
 
     @Override

@@ -11,8 +11,11 @@ import ru.yandex.practicum.filmorate.dal.mappers.ReviewRowMapper;
 import ru.yandex.practicum.filmorate.model.Review;
 
 import java.time.Instant;
+import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 @Repository
@@ -45,7 +48,22 @@ public class JdbcReviewRepository implements ReviewRepository {
                 COALESCE(SUM(rl.reaction_type), 0) AS useful
             FROM reviews r
             LEFT JOIN reviews_likes rl ON r.reviewId = rl.reviewId
-            GROUP BY r.reviewId, r.content, r.isPositive, r.userId, r.filmId;
+            GROUP BY r.reviewId, r.content, r.isPositive, r.userId, r.filmId
+            LIMIT :count;
+            """;
+    private static final String GET_ALL_REVIEW_BY_FILM = """
+            SELECT
+                r.reviewId,
+                r.content,
+                r.isPositive,
+                r.userId,
+                r.filmId,
+                COALESCE(SUM(rl.reaction_type), 0) AS useful
+            FROM reviews r
+            LEFT JOIN reviews_likes rl ON r.reviewId = rl.reviewId
+            WHERE r.filmId = :filmId
+            GROUP BY r.reviewId, r.content, r.isPositive, r.userId, r.filmId
+            LIMIT :count;
             """;
 
     private static final String CREATE_REVIEW = """
@@ -54,7 +72,7 @@ public class JdbcReviewRepository implements ReviewRepository {
             """;
     private static final String UPDATE_REVIEW = """
             UPDATE reviews
-            SET content=:content, isPositive=:isPositive, userId=:userId, filmId=:filmId, useful=:useful
+            SET content=:content, isPositive=:isPositive, useful=:useful
             WHERE reviewId=:reviewId
             """;
     private static final String DELETE_REVIEW = """
@@ -110,7 +128,17 @@ public class JdbcReviewRepository implements ReviewRepository {
 
     @Override
     public List<Review> getAllReviewsByFilmId(long filmId, long count) {
-        return jdbc.query(GET_ALL_REVIEW, reviewMapper).reversed();
+        MapSqlParameterSource params = new MapSqlParameterSource();
+        params.addValue("count", count);
+        if (filmId == -1) {
+            return  jdbc.query(GET_ALL_REVIEW, params, reviewMapper).stream()
+                    .sorted(Comparator.comparingLong(Review::getUseful).reversed())
+                    .collect(Collectors.toList());
+        }
+        params.addValue("filmId", filmId);
+        return jdbc.query(GET_ALL_REVIEW_BY_FILM, params, reviewMapper).stream()
+                .sorted(Comparator.comparingLong(Review::getUseful).reversed())
+                .collect(Collectors.toList());
     }
 
     @Override
@@ -143,8 +171,8 @@ public class JdbcReviewRepository implements ReviewRepository {
 
         params.addValue("content", review.getContent());
         params.addValue("isPositive", review.getIsPositive());
-        params.addValue("userId", review.getUserId());
-        params.addValue("filmId", review.getFilmId());
+//        params.addValue("userId", review.getUserId());
+//        params.addValue("filmId", review.getFilmId());
         params.addValue("useful", review.getUseful());
         params.addValue("reviewId", review.getReviewId());
 
@@ -196,11 +224,11 @@ public class JdbcReviewRepository implements ReviewRepository {
         params.addValue("userId", userId);
         jdbc.update(ADD_DISLIKE_REVIEW, params);
 
-        MapSqlParameterSource paramsActivity = new MapSqlParameterSource();
-        paramsActivity.addValue("userId", userId);
-        paramsActivity.addValue("entityId", reviewId);
-
-        jdbc.update(ACTIVITY_REVIEW_ADD_DISLIKE, paramsActivity);
+//        MapSqlParameterSource paramsActivity = new MapSqlParameterSource();
+//        paramsActivity.addValue("userId", userId);
+//        paramsActivity.addValue("entityId", reviewId);
+//
+//        jdbc.update(ACTIVITY_REVIEW_ADD_DISLIKE, paramsActivity);
     }
 
     @Override

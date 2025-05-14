@@ -22,7 +22,11 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public List<Activity> getActivityById(long userId) {
-        return jdbcUserRepository.getActivityById(userId);
+        List<Activity> activities = jdbcUserRepository.getActivityById(userId);
+        if (activities.isEmpty()) {
+            throw new NotFoundException("Активность пользователя не найдена");
+        }
+        return activities;
     }
 
     @Override
