@@ -1,5 +1,6 @@
 package ru.yandex.practicum.filmorate.dal;
 
+import ru.yandex.practicum.filmorate.model.Activity;
 import ru.yandex.practicum.filmorate.model.User;
 
 import java.util.List;
@@ -8,6 +9,8 @@ import java.util.Optional;
 import java.util.Set;
 
 public interface UserRepository {
+    List<Activity> getActivityById(long activityId);
+
     Optional<User> getUserById(long userId);
 
     List<User> getUsersByIds(List<Long> userIds);

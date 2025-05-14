@@ -6,9 +6,15 @@ import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcOperations;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.stereotype.Repository;
+import ru.yandex.practicum.filmorate.Enum.EventType;
+import ru.yandex.practicum.filmorate.Enum.OperationType;
+import ru.yandex.practicum.filmorate.dal.mappers.ActivityRowMapper;
+import ru.yandex.practicum.filmorate.model.Activity;
 import ru.yandex.practicum.filmorate.model.User;
 
-import java.util.*;
+import java.time.Instant;
+import java.util.List;
+import java.util.Optional;
 import java.util.stream.Stream;
 
 @Repository
@@ -16,6 +22,7 @@ import java.util.stream.Stream;
 public class JdbcUserRepository implements UserRepository {
     private final NamedParameterJdbcOperations jdbc;
     private final RowMapper<User> mapper;
+    private final ActivityRowMapper activityRowMapper;
 
     private static final String CREATE_USER_QUERY = "INSERT INTO users (login, email, name, birthday) VALUES(:login,:email,:name,:birthday)";
     private static final String UPDATE_USER_QUERY = "UPDATE users SET login=:login, email=:email, name=:name, birthday=:birthday WHERE user_id=:user_id";
@@ -34,6 +41,28 @@ public class JdbcUserRepository implements UserRepository {
             WHERE l.user_id =:user_id
             """;
     private static final String GET_ALL_USERS_LIKES = "SELECT user_id, film_id FROM likes";
+
+    private static final String ACTIVITY_GENERAL =
+            "INSERT INTO activity (userId, entityId, eventType, operation, timestamp) VALUES(:userId, :entityId, '";
+
+    private static final String ACTIVITY_FRIEND_ADD = ACTIVITY_GENERAL +
+            EventType.FRIEND + "','" + OperationType.ADD + "'," + instantOfMilliSecond() + ")";
+
+    private static final String ACTIVITY_FRIEND_DELETE = ACTIVITY_GENERAL +
+            EventType.FRIEND + "','" + OperationType.REMOVE + "', " + instantOfMilliSecond() + ")";
+
+    private static final String GET_ACTIVITY_BY_USER_ID = "SELECT * FROM activity WHERE userId = :userId";
+
+    private static long instantOfMilliSecond() {
+        return Instant.now().toEpochMilli();
+    }
+
+    @Override
+    public List<Activity> getActivityById(long userId) {
+        MapSqlParameterSource paramsActivity = new MapSqlParameterSource();
+        paramsActivity.addValue("userId", userId);
+        return jdbc.query(GET_ACTIVITY_BY_USER_ID, paramsActivity, activityRowMapper);
+    }
 
     @Override
     public User create(User user) {
@@ -89,6 +118,11 @@ public class JdbcUserRepository implements UserRepository {
         params.addValue("user_id", userId);
         params.addValue("friend_id", friendId);
         jdbc.update(ADD_FRIEND_QUERY, params, keyHolder);
+
+        MapSqlParameterSource paramsActivity = new MapSqlParameterSource();
+        paramsActivity.addValue("userId", userId);
+        paramsActivity.addValue("entityId", friendId);
+        jdbc.update(ACTIVITY_FRIEND_ADD, paramsActivity);
     }
 
     @Override
@@ -98,6 +132,11 @@ public class JdbcUserRepository implements UserRepository {
         params.addValue("user_id", userId);
         params.addValue("friend_id", friendId);
         jdbc.update(DELETE_FRIEND_QUERY, params, keyHolder);
+
+        MapSqlParameterSource paramsActivity = new MapSqlParameterSource();
+        paramsActivity.addValue("userId", userId);
+        paramsActivity.addValue("entityId", friendId);
+        jdbc.update(ACTIVITY_FRIEND_DELETE, paramsActivity);
     }
 
     @Override

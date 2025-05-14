@@ -6,6 +6,8 @@ import org.springframework.jdbc.core.namedparam.NamedParameterJdbcOperations;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Repository;
+import ru.yandex.practicum.filmorate.Enum.EventType;
+import ru.yandex.practicum.filmorate.Enum.OperationType;
 import ru.yandex.practicum.filmorate.dal.mappers.DirectorRowMapper;
 import ru.yandex.practicum.filmorate.dal.mappers.FilmRowMapper;
 import ru.yandex.practicum.filmorate.dal.mappers.GenreRowMapper;
@@ -14,6 +16,7 @@ import ru.yandex.practicum.filmorate.model.Director;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
 
+import java.time.Instant;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -106,6 +109,19 @@ public class JdbcFilmRepository implements FilmRepository {
             GROUP BY f.film_id, r.mpa_name
             ORDER BY likes_count DESC
             """;
+
+    private static final String ACTIVITY_GENERAL =
+            "INSERT INTO activity (userId, entityId, eventType, operation, timestamp) VALUES(:userId, :entityId, '";
+
+    private static final String ACTIVITY_FILM_LIKE = ACTIVITY_GENERAL +
+            EventType.LIKE + "','" + OperationType.ADD + "', " + instantOfMilliSecond() + ")";
+
+    private static final String ACTIVITY_FILM_LIKE_DELETE = ACTIVITY_GENERAL +
+            EventType.LIKE + "','" + OperationType.REMOVE + "'," + instantOfMilliSecond() + ")";
+
+    private static long instantOfMilliSecond() {
+        return Instant.now().toEpochMilli();
+    }
 
     @Override
     public Film create(Film film) {
@@ -270,6 +286,12 @@ public class JdbcFilmRepository implements FilmRepository {
         params.addValue("user_id", userId);
         params.addValue("film_id", filmId);
         jdbc.update(ADD_LIKE_QUERY, params, keyHolder);
+
+        MapSqlParameterSource paramsActivity = new MapSqlParameterSource();
+        paramsActivity.addValue("userId", userId);
+        paramsActivity.addValue("entityId", filmId);
+
+        jdbc.update(ACTIVITY_FILM_LIKE, paramsActivity);
     }
 
     @Override
@@ -279,6 +301,12 @@ public class JdbcFilmRepository implements FilmRepository {
         params.addValue("user_id", userId);
         params.addValue("film_id", filmId);
         jdbc.update(DELETE_LIKE_QUERY, params, keyHolder);
+
+        MapSqlParameterSource paramsActivity = new MapSqlParameterSource();
+        paramsActivity.addValue("userId", userId);
+        paramsActivity.addValue("entityId", filmId);
+
+        jdbc.update(ACTIVITY_FILM_LIKE_DELETE, paramsActivity);
     }
 
     @Override

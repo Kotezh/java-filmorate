@@ -1,10 +1,13 @@
 package ru.yandex.practicum.filmorate.service;
 
+import ru.yandex.practicum.filmorate.model.Activity;
 import ru.yandex.practicum.filmorate.model.User;
 
 import java.util.List;
 
 public interface UserService {
+    List<Activity> getActivityById(long activityId);
+
     User getUserById(long userId);
 
     List<User> getUsers();
