@@ -6,6 +6,8 @@ import org.springframework.jdbc.core.namedparam.NamedParameterJdbcOperations;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Repository;
+import ru.yandex.practicum.filmorate.Enum.EventType;
+import ru.yandex.practicum.filmorate.Enum.OperationType;
 import ru.yandex.practicum.filmorate.dal.mappers.DirectorRowMapper;
 import ru.yandex.practicum.filmorate.dal.mappers.FilmRowMapper;
 import ru.yandex.practicum.filmorate.dal.mappers.GenreRowMapper;
@@ -96,19 +98,15 @@ public class JdbcFilmRepository implements FilmRepository {
             """;
 
     private static final String ACTIVITY_GENERAL =
-            "INSERT INTO activity (userId, entityId, eventType, operation, timestamp)";
+            "INSERT INTO activity (userId, entityId, eventType, operation, timestamp) VALUES(:userId, :entityId, '";
 
     private static final String ACTIVITY_FILM_LIKE = ACTIVITY_GENERAL +
-            """
-                    VALUES(:userId, :entityId, 'LIKE', 'ADD',
-                    """ + instantOfSecond() + ")";
+            EventType.LIKE + "','" + OperationType.ADD + "', " + instantOfMilliSecond() + ")";
 
     private static final String ACTIVITY_FILM_LIKE_DELETE = ACTIVITY_GENERAL +
-            """
-                    VALUES(:userId, :entityId, 'LIKE', 'REMOVE',
-                    """ + instantOfSecond() + ")";
+            EventType.LIKE + "','" + OperationType.REMOVE + "'," + instantOfMilliSecond() + ")";
 
-    private static long instantOfSecond() {
+    private static long instantOfMilliSecond() {
         return Instant.now().toEpochMilli();
     }
 

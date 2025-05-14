@@ -6,6 +6,8 @@ import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcOperations;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.stereotype.Repository;
+import ru.yandex.practicum.filmorate.Enum.EventType;
+import ru.yandex.practicum.filmorate.Enum.OperationType;
 import ru.yandex.practicum.filmorate.dal.mappers.ActivityRowMapper;
 import ru.yandex.practicum.filmorate.model.Activity;
 import ru.yandex.practicum.filmorate.model.User;
@@ -35,18 +37,17 @@ public class JdbcUserRepository implements UserRepository {
     private static final String FIND_USERS_BY_IDS_QUERY = "SELECT * FROM users WHERE user_id IN (:ids)";
 
     private static final String ACTIVITY_GENERAL =
-            "INSERT INTO activity (userId, entityId, eventType, operation, timestamp) ";
+            "INSERT INTO activity (userId, entityId, eventType, operation, timestamp) VALUES(:userId, :entityId, '";
+
     private static final String ACTIVITY_FRIEND_ADD = ACTIVITY_GENERAL +
-            """
-                    VALUES(:userId, :entityId, 'FRIEND', 'ADD',
-                    """ + instantOfSecond() + ")";
+            EventType.FRIEND + "','" + OperationType.ADD + "'," + instantOfMilliSecond() + ")";
+
     private static final String ACTIVITY_FRIEND_DELETE = ACTIVITY_GENERAL +
-            """
-                    VALUES(:userId, :entityId, 'FRIEND', 'REMOVE',
-                    """ + instantOfSecond() + ")";
+            EventType.FRIEND + "','" + OperationType.REMOVE + "', " + instantOfMilliSecond() + ")";
+
     private static final String GET_ACTIVITY_BY_USER_ID = "SELECT * FROM activity WHERE userId = :userId";
 
-    private static long instantOfSecond() {
+    private static long instantOfMilliSecond() {
         return Instant.now().toEpochMilli();
     }
 

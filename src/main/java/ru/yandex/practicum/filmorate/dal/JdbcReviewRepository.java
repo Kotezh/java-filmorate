@@ -5,6 +5,8 @@ import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcOperations;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.stereotype.Repository;
+import ru.yandex.practicum.filmorate.Enum.EventType;
+import ru.yandex.practicum.filmorate.Enum.OperationType;
 import ru.yandex.practicum.filmorate.dal.mappers.ReviewRowMapper;
 import ru.yandex.practicum.filmorate.model.Review;
 
@@ -73,40 +75,27 @@ public class JdbcReviewRepository implements ReviewRepository {
             """;
 
     private static final String ACTIVITY_GENERAL =
-            "INSERT INTO activity (userId, entityId, eventType, operation, timestamp)";
+            "INSERT INTO activity (userId, entityId, eventType, operation, timestamp) VALUES(:userId, :entityId, '";
 
     private static final String ACTIVITY_REVIEW_CREATE = ACTIVITY_GENERAL +
-            """
-                    VALUES(:userId, :entityId, 'REVIEW', 'ADD',
-                    """ + instantOfSecond() + ")";
+            EventType.REVIEW + "','" + OperationType.ADD + "', " + instantOfMilliSecond() + ")";
 
     private static final String ACTIVITY_REVIEW_UPDATE = ACTIVITY_GENERAL +
-            """
-                    VALUES(:userId, :entityId, 'REVIEW', 'UPDATE',
-                    """ + instantOfSecond() + ")";
+            EventType.REVIEW + "','" + OperationType.UPDATE + "', " + instantOfMilliSecond() + ")";
 
     private static final String ACTIVITY_REVIEW_DELETE = ACTIVITY_GENERAL +
-            """
-                    VALUES(:userId, :entityId, 'REVIEW', 'REMOVE',
-                    """ + instantOfSecond() + ")";
-
+            EventType.REVIEW + "','" + OperationType.REMOVE + "', " + instantOfMilliSecond() + ")";
 
     private static final String ACTIVITY_REVIEW_ADD_LIKE = ACTIVITY_GENERAL +
-            """
-                    VALUES(:userId, :entityId, 'LIKE', 'ADD',
-                    """ + instantOfSecond() + ")";
+            EventType.LIKE + "','" + OperationType.ADD + "', " + instantOfMilliSecond() + ")";
 
     private static final String ACTIVITY_REVIEW_ADD_DISLIKE = ACTIVITY_GENERAL +
-            """
-                    VALUES(:userId, :entityId, 'DISLIKE', 'ADD',
-                    """ + instantOfSecond() + ")";
+            EventType.DISLIKE + "','" + OperationType.ADD + "', " + instantOfMilliSecond() + ")";
 
     private static final String ACTIVITY_REVIEW_DELETE_REACTION = ACTIVITY_GENERAL +
-            """
-                    VALUES(:userId, :entityId, 'LIKE', 'REMOVE',
-                    """ + instantOfSecond() + ")";
+            EventType.LIKE + "','" + OperationType.REMOVE + "', " + instantOfMilliSecond() + ")";
 
-    private static long instantOfSecond() {
+    private static long instantOfMilliSecond() {
         return Instant.now().toEpochMilli();
     }
 
