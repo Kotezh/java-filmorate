@@ -83,9 +83,9 @@ public class UserServiceImpl implements UserService {
     @Override
     public List<User> getAllFriends(long userId) {
         User user = getUserById(userId);
-        if (user == null) {
-            throw new NotFoundException("Пользователь с id = " + userId + " не найден");
-        }
+//        if (user == null) {
+//            throw new NotFoundException("Пользователь с id = " + userId + " не найден");
+//        }
         return jdbcUserRepository.getUserFriends(userId);
     }
 

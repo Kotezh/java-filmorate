@@ -3,7 +3,9 @@ package ru.yandex.practicum.filmorate.dal;
 import ru.yandex.practicum.filmorate.model.User;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 
 public interface UserRepository {
     Optional<User> getUserById(long userId);
@@ -25,4 +27,8 @@ public interface UserRepository {
     List<User> getUserFriends(long userId);
 
     List<User> getCommonFriends(long userId, long otherId);
+
+    Set<Long> getUserLikedFilms(long userId);
+
+    Map<Long, Set<Long>> getAllUserLikes();
 }
