@@ -11,7 +11,6 @@ import ru.yandex.practicum.filmorate.dal.mappers.ReviewRowMapper;
 import ru.yandex.practicum.filmorate.model.Review;
 
 import java.time.Instant;
-import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
