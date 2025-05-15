@@ -30,7 +30,6 @@ public class ReviewServiceImpl implements ReviewService {
 
     @Override
     public List<Review> getAllReviewsByFilmId(long filmId, long count) {
-//        checkFilmId(filmId);
         return jdbcReviewRepository.getAllReviewsByFilmId(filmId, count);
     }
 
