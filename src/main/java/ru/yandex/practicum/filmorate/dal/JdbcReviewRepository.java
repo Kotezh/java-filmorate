@@ -124,7 +124,7 @@ public class JdbcReviewRepository implements ReviewRepository {
         MapSqlParameterSource params = new MapSqlParameterSource();
         params.addValue("count", count);
         if (filmId == -1) {
-            return  jdbc.query(GET_ALL_REVIEW, params, reviewMapper).stream()
+            return jdbc.query(GET_ALL_REVIEW, params, reviewMapper).stream()
                     .sorted(Comparator.comparingLong(Review::getUseful).reversed())
                     .collect(Collectors.toList());
         }
@@ -168,16 +168,16 @@ public class JdbcReviewRepository implements ReviewRepository {
         params.addValue("isPositive", review.getIsPositive());
         params.addValue("useful", review.getUseful());
         params.addValue("reviewId", review.getReviewId());
-
         jdbc.update(UPDATE_REVIEW, params, keyHolder);
 
+        Review reviewUpdated = getReviewById(review.getReviewId())
+                .orElseThrow(() -> new NotFoundException("Review not found"));
         MapSqlParameterSource paramsActivity = new MapSqlParameterSource();
-        paramsActivity.addValue("userId", review.getUserId());
-        paramsActivity.addValue("entityId", review.getReviewId());
-
+        paramsActivity.addValue("userId", reviewUpdated.getUserId());
+        paramsActivity.addValue("entityId", reviewUpdated.getReviewId());
         jdbc.update(ACTIVITY_REVIEW_UPDATE, paramsActivity);
 
-        return getReviewById(review.getReviewId()).get();
+        return reviewUpdated;
     }
 
     @Transactional

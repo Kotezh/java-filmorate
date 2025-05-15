@@ -286,17 +286,17 @@ public class JdbcFilmRepository implements FilmRepository {
     @Transactional
     @Override
     public void addLike(long filmId, long userId) {
+
+        MapSqlParameterSource paramsActivity = new MapSqlParameterSource();
+        paramsActivity.addValue("userId", userId);
+        paramsActivity.addValue("entityId", filmId);
+
+        jdbc.update(ACTIVITY_FILM_LIKE, paramsActivity);
         try {
             MapSqlParameterSource params = new MapSqlParameterSource();
             params.addValue("user_id", userId);
             params.addValue("film_id", filmId);
             jdbc.update(ADD_LIKE_QUERY, params);
-
-            MapSqlParameterSource paramsActivity = new MapSqlParameterSource();
-            paramsActivity.addValue("userId", userId);
-            paramsActivity.addValue("entityId", filmId);
-
-            jdbc.update(ACTIVITY_FILM_LIKE, paramsActivity);
         } catch (DataIntegrityViolationException ex) {
             log.debug("Лайк уже существует: userId={}, filmId={}", userId, filmId);
         }

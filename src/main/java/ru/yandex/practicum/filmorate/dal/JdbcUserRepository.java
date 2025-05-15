@@ -10,12 +10,10 @@ import ru.yandex.practicum.filmorate.Enum.EventType;
 import ru.yandex.practicum.filmorate.Enum.OperationType;
 import ru.yandex.practicum.filmorate.dal.mappers.ActivityRowMapper;
 import ru.yandex.practicum.filmorate.model.Activity;
-import ru.yandex.practicum.filmorate.model.Review;
 import ru.yandex.practicum.filmorate.model.User;
 
 import java.time.Instant;
 import java.util.*;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 @Repository
@@ -52,7 +50,7 @@ public class JdbcUserRepository implements UserRepository {
     private static final String ACTIVITY_FRIEND_DELETE = ACTIVITY_GENERAL +
             EventType.FRIEND + "','" + OperationType.REMOVE + "', " + instantOfMilliSecond() + ")";
 
-    private static final String GET_ACTIVITY_BY_USER_ID = "SELECT * FROM activity WHERE userId = :userId";
+    private static final String GET_ACTIVITY_BY_USER_ID = "SELECT * FROM activity WHERE userId = :userId ORDER BY eventId ASC";
 
     private static long instantOfMilliSecond() {
         return Instant.now().toEpochMilli();
@@ -63,9 +61,6 @@ public class JdbcUserRepository implements UserRepository {
         MapSqlParameterSource paramsActivity = new MapSqlParameterSource();
         paramsActivity.addValue("userId", userId);
         return jdbc.query(GET_ACTIVITY_BY_USER_ID, paramsActivity, activityRowMapper);
-//                .stream()
-//                .sorted(Comparator.comparingLong(Activity::getTimestamp).reversed())
-//                .collect(Collectors.toList());
     }
 
     @Override
