@@ -171,8 +171,6 @@ public class JdbcReviewRepository implements ReviewRepository {
 
         params.addValue("content", review.getContent());
         params.addValue("isPositive", review.getIsPositive());
-//        params.addValue("userId", review.getUserId());
-//        params.addValue("filmId", review.getFilmId());
         params.addValue("useful", review.getUseful());
         params.addValue("reviewId", review.getReviewId());
 
@@ -184,7 +182,7 @@ public class JdbcReviewRepository implements ReviewRepository {
 
         jdbc.update(ACTIVITY_REVIEW_UPDATE, paramsActivity);
 
-        return review;
+        return getReviewById(review.getReviewId()).get();
     }
 
     @Override
@@ -209,11 +207,11 @@ public class JdbcReviewRepository implements ReviewRepository {
         params.addValue("userId", userId);
         jdbc.update(ADD_LIKE_REVIEW, params);
 
-        MapSqlParameterSource paramsActivity = new MapSqlParameterSource();
-        paramsActivity.addValue("userId", userId);
-        paramsActivity.addValue("entityId", reviewId);
-
-        jdbc.update(ACTIVITY_REVIEW_ADD_LIKE, paramsActivity);
+//        MapSqlParameterSource paramsActivity = new MapSqlParameterSource();
+//        paramsActivity.addValue("userId", userId);
+//        paramsActivity.addValue("entityId", reviewId);
+//
+//        jdbc.update(ACTIVITY_REVIEW_ADD_LIKE, paramsActivity);
     }
 
     @Override
@@ -238,11 +236,11 @@ public class JdbcReviewRepository implements ReviewRepository {
         params.addValue("userId", userId);
         jdbc.update(DELETE_LIKE_REVIEW, params);
 
-        MapSqlParameterSource paramsActivity = new MapSqlParameterSource();
-        paramsActivity.addValue("userId", userId);
-        paramsActivity.addValue("entityId", reviewId);
-
-        jdbc.update(ACTIVITY_REVIEW_DELETE_REACTION, paramsActivity);
+//        MapSqlParameterSource paramsActivity = new MapSqlParameterSource();
+//        paramsActivity.addValue("userId", userId);
+//        paramsActivity.addValue("entityId", reviewId);
+//
+//        jdbc.update(ACTIVITY_REVIEW_DELETE_REACTION, paramsActivity);
     }
 
 }
