@@ -5,14 +5,18 @@ import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcOperations;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 import ru.yandex.practicum.filmorate.Enum.EventType;
 import ru.yandex.practicum.filmorate.Enum.OperationType;
 import ru.yandex.practicum.filmorate.dal.mappers.ReviewRowMapper;
+import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Review;
 
 import java.time.Instant;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 @Repository
@@ -45,7 +49,22 @@ public class JdbcReviewRepository implements ReviewRepository {
                 COALESCE(SUM(rl.reaction_type), 0) AS useful
             FROM reviews r
             LEFT JOIN reviews_likes rl ON r.reviewId = rl.reviewId
-            GROUP BY r.reviewId, r.content, r.isPositive, r.userId, r.filmId;
+            GROUP BY r.reviewId, r.content, r.isPositive, r.userId, r.filmId
+            LIMIT :count;
+            """;
+    private static final String GET_ALL_REVIEW_BY_FILM = """
+            SELECT
+                r.reviewId,
+                r.content,
+                r.isPositive,
+                r.userId,
+                r.filmId,
+                COALESCE(SUM(rl.reaction_type), 0) AS useful
+            FROM reviews r
+            LEFT JOIN reviews_likes rl ON r.reviewId = rl.reviewId
+            WHERE r.filmId = :filmId
+            GROUP BY r.reviewId, r.content, r.isPositive, r.userId, r.filmId
+            LIMIT :count;
             """;
 
     private static final String CREATE_REVIEW = """
@@ -54,7 +73,7 @@ public class JdbcReviewRepository implements ReviewRepository {
             """;
     private static final String UPDATE_REVIEW = """
             UPDATE reviews
-            SET content=:content, isPositive=:isPositive, userId=:userId, filmId=:filmId, useful=:useful
+            SET content=:content, isPositive=:isPositive, useful=:useful
             WHERE reviewId=:reviewId
             """;
     private static final String DELETE_REVIEW = """
@@ -86,14 +105,6 @@ public class JdbcReviewRepository implements ReviewRepository {
     private static final String ACTIVITY_REVIEW_DELETE = ACTIVITY_GENERAL +
             EventType.REVIEW + "','" + OperationType.REMOVE + "', " + instantOfMilliSecond() + ")";
 
-    private static final String ACTIVITY_REVIEW_ADD_LIKE = ACTIVITY_GENERAL +
-            EventType.LIKE + "','" + OperationType.ADD + "', " + instantOfMilliSecond() + ")";
-
-    private static final String ACTIVITY_REVIEW_ADD_DISLIKE = ACTIVITY_GENERAL +
-            EventType.DISLIKE + "','" + OperationType.ADD + "', " + instantOfMilliSecond() + ")";
-
-    private static final String ACTIVITY_REVIEW_DELETE_REACTION = ACTIVITY_GENERAL +
-            EventType.LIKE + "','" + OperationType.REMOVE + "', " + instantOfMilliSecond() + ")";
 
     private static long instantOfMilliSecond() {
         return Instant.now().toEpochMilli();
@@ -110,9 +121,20 @@ public class JdbcReviewRepository implements ReviewRepository {
 
     @Override
     public List<Review> getAllReviewsByFilmId(long filmId, long count) {
-        return jdbc.query(GET_ALL_REVIEW, reviewMapper).reversed();
+        MapSqlParameterSource params = new MapSqlParameterSource();
+        params.addValue("count", count);
+        if (filmId == -1) {
+            return jdbc.query(GET_ALL_REVIEW, params, reviewMapper).stream()
+                    .sorted(Comparator.comparingLong(Review::getUseful).reversed())
+                    .collect(Collectors.toList());
+        }
+        params.addValue("filmId", filmId);
+        return jdbc.query(GET_ALL_REVIEW_BY_FILM, params, reviewMapper).stream()
+                .sorted(Comparator.comparingLong(Review::getUseful).reversed())
+                .collect(Collectors.toList());
     }
 
+    @Transactional
     @Override
     public Review create(Review review) {
         GeneratedKeyHolder keyHolder = new GeneratedKeyHolder();
@@ -122,7 +144,7 @@ public class JdbcReviewRepository implements ReviewRepository {
         params.addValue("isPositive", review.getIsPositive());
         params.addValue("userId", review.getUserId());
         params.addValue("filmId", review.getFilmId());
-        params.addValue("useful", review.getUseful());
+        params.addValue("useful", 0);
 
         jdbc.update(CREATE_REVIEW, params, keyHolder);
         review.setReviewId(keyHolder.getKeyAs(Long.class));
@@ -136,6 +158,7 @@ public class JdbcReviewRepository implements ReviewRepository {
         return review;
     }
 
+    @Transactional
     @Override
     public Review update(Review review) {
         GeneratedKeyHolder keyHolder = new GeneratedKeyHolder();
@@ -143,31 +166,31 @@ public class JdbcReviewRepository implements ReviewRepository {
 
         params.addValue("content", review.getContent());
         params.addValue("isPositive", review.getIsPositive());
-        params.addValue("userId", review.getUserId());
-        params.addValue("filmId", review.getFilmId());
         params.addValue("useful", review.getUseful());
         params.addValue("reviewId", review.getReviewId());
-
         jdbc.update(UPDATE_REVIEW, params, keyHolder);
 
+        Review reviewUpdated = getReviewById(review.getReviewId())
+                .orElseThrow(() -> new NotFoundException("Review not found"));
         MapSqlParameterSource paramsActivity = new MapSqlParameterSource();
-        paramsActivity.addValue("userId", review.getUserId());
-        paramsActivity.addValue("entityId", review.getReviewId());
-
+        paramsActivity.addValue("userId", reviewUpdated.getUserId());
+        paramsActivity.addValue("entityId", reviewUpdated.getReviewId());
         jdbc.update(ACTIVITY_REVIEW_UPDATE, paramsActivity);
 
-        return review;
+        return reviewUpdated;
     }
 
+    @Transactional
     @Override
     public void deleteReview(long reviewId) {
         MapSqlParameterSource params = new MapSqlParameterSource();
         params.addValue("reviewId", reviewId);
 
-        Optional<Review> review = getReviewById(reviewId);
         MapSqlParameterSource paramsActivity = new MapSqlParameterSource();
-        paramsActivity.addValue("userId", review.get().getUserId());
-        paramsActivity.addValue("entityId", review.get().getReviewId());
+        Review review = getReviewById(reviewId)
+                .orElseThrow(() -> new NotFoundException("Review not found"));
+        paramsActivity.addValue("userId", review.getUserId());
+        paramsActivity.addValue("entityId", reviewId);
 
         jdbc.update(ACTIVITY_REVIEW_DELETE, paramsActivity);
         jdbc.update(DELETE_REVIEW, params);
@@ -180,12 +203,6 @@ public class JdbcReviewRepository implements ReviewRepository {
         params.addValue("reviewId", reviewId);
         params.addValue("userId", userId);
         jdbc.update(ADD_LIKE_REVIEW, params);
-
-        MapSqlParameterSource paramsActivity = new MapSqlParameterSource();
-        paramsActivity.addValue("userId", userId);
-        paramsActivity.addValue("entityId", reviewId);
-
-        jdbc.update(ACTIVITY_REVIEW_ADD_LIKE, paramsActivity);
     }
 
     @Override
@@ -195,12 +212,6 @@ public class JdbcReviewRepository implements ReviewRepository {
         params.addValue("reviewId", reviewId);
         params.addValue("userId", userId);
         jdbc.update(ADD_DISLIKE_REVIEW, params);
-
-        MapSqlParameterSource paramsActivity = new MapSqlParameterSource();
-        paramsActivity.addValue("userId", userId);
-        paramsActivity.addValue("entityId", reviewId);
-
-        jdbc.update(ACTIVITY_REVIEW_ADD_DISLIKE, paramsActivity);
     }
 
     @Override
@@ -209,12 +220,6 @@ public class JdbcReviewRepository implements ReviewRepository {
         params.addValue("reviewId", reviewId);
         params.addValue("userId", userId);
         jdbc.update(DELETE_LIKE_REVIEW, params);
-
-        MapSqlParameterSource paramsActivity = new MapSqlParameterSource();
-        paramsActivity.addValue("userId", userId);
-        paramsActivity.addValue("entityId", reviewId);
-
-        jdbc.update(ACTIVITY_REVIEW_DELETE_REACTION, paramsActivity);
     }
 
 }
