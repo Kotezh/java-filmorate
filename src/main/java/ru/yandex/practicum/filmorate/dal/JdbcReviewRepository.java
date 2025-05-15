@@ -5,9 +5,11 @@ import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcOperations;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 import ru.yandex.practicum.filmorate.Enum.EventType;
 import ru.yandex.practicum.filmorate.Enum.OperationType;
 import ru.yandex.practicum.filmorate.dal.mappers.ReviewRowMapper;
+import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Review;
 
 import java.time.Instant;
@@ -132,6 +134,7 @@ public class JdbcReviewRepository implements ReviewRepository {
                 .collect(Collectors.toList());
     }
 
+    @Transactional
     @Override
     public Review create(Review review) {
         GeneratedKeyHolder keyHolder = new GeneratedKeyHolder();
@@ -141,7 +144,7 @@ public class JdbcReviewRepository implements ReviewRepository {
         params.addValue("isPositive", review.getIsPositive());
         params.addValue("userId", review.getUserId());
         params.addValue("filmId", review.getFilmId());
-        params.addValue("useful", review.getUseful());
+        params.addValue("useful", 0);
 
         jdbc.update(CREATE_REVIEW, params, keyHolder);
         review.setReviewId(keyHolder.getKeyAs(Long.class));
@@ -155,6 +158,7 @@ public class JdbcReviewRepository implements ReviewRepository {
         return review;
     }
 
+    @Transactional
     @Override
     public Review update(Review review) {
         GeneratedKeyHolder keyHolder = new GeneratedKeyHolder();
@@ -176,13 +180,16 @@ public class JdbcReviewRepository implements ReviewRepository {
         return getReviewById(review.getReviewId()).get();
     }
 
+    @Transactional
     @Override
     public void deleteReview(long reviewId) {
         MapSqlParameterSource params = new MapSqlParameterSource();
         params.addValue("reviewId", reviewId);
 
         MapSqlParameterSource paramsActivity = new MapSqlParameterSource();
-        paramsActivity.addValue("userId", getReviewById(reviewId).get().getUserId());
+        Review review = getReviewById(reviewId)
+                .orElseThrow(() -> new NotFoundException("Review not found"));
+        paramsActivity.addValue("userId", review.getUserId());
         paramsActivity.addValue("entityId", reviewId);
 
         jdbc.update(ACTIVITY_REVIEW_DELETE, paramsActivity);
