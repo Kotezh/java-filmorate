@@ -104,14 +104,6 @@ public class JdbcReviewRepository implements ReviewRepository {
     private static final String ACTIVITY_REVIEW_DELETE = ACTIVITY_GENERAL +
             EventType.REVIEW + "','" + OperationType.REMOVE + "', " + instantOfMilliSecond() + ")";
 
-    private static final String ACTIVITY_REVIEW_ADD_LIKE = ACTIVITY_GENERAL +
-            EventType.LIKE + "','" + OperationType.ADD + "', " + instantOfMilliSecond() + ")";
-
-    private static final String ACTIVITY_REVIEW_ADD_DISLIKE = ACTIVITY_GENERAL +
-            EventType.DISLIKE + "','" + OperationType.ADD + "', " + instantOfMilliSecond() + ")";
-
-    private static final String ACTIVITY_REVIEW_DELETE_REACTION = ACTIVITY_GENERAL +
-            EventType.LIKE + "','" + OperationType.REMOVE + "', " + instantOfMilliSecond() + ")";
 
     private static long instantOfMilliSecond() {
         return Instant.now().toEpochMilli();
@@ -190,10 +182,9 @@ public class JdbcReviewRepository implements ReviewRepository {
         MapSqlParameterSource params = new MapSqlParameterSource();
         params.addValue("reviewId", reviewId);
 
-        Optional<Review> review = getReviewById(reviewId);
         MapSqlParameterSource paramsActivity = new MapSqlParameterSource();
-        paramsActivity.addValue("userId", review.get().getUserId());
-        paramsActivity.addValue("entityId", review.get().getReviewId());
+        paramsActivity.addValue("userId", getReviewById(reviewId).get().getUserId());
+        paramsActivity.addValue("entityId", reviewId);
 
         jdbc.update(ACTIVITY_REVIEW_DELETE, paramsActivity);
         jdbc.update(DELETE_REVIEW, params);
@@ -206,12 +197,6 @@ public class JdbcReviewRepository implements ReviewRepository {
         params.addValue("reviewId", reviewId);
         params.addValue("userId", userId);
         jdbc.update(ADD_LIKE_REVIEW, params);
-
-//        MapSqlParameterSource paramsActivity = new MapSqlParameterSource();
-//        paramsActivity.addValue("userId", userId);
-//        paramsActivity.addValue("entityId", reviewId);
-//
-//        jdbc.update(ACTIVITY_REVIEW_ADD_LIKE, paramsActivity);
     }
 
     @Override
@@ -221,12 +206,6 @@ public class JdbcReviewRepository implements ReviewRepository {
         params.addValue("reviewId", reviewId);
         params.addValue("userId", userId);
         jdbc.update(ADD_DISLIKE_REVIEW, params);
-
-//        MapSqlParameterSource paramsActivity = new MapSqlParameterSource();
-//        paramsActivity.addValue("userId", userId);
-//        paramsActivity.addValue("entityId", reviewId);
-//
-//        jdbc.update(ACTIVITY_REVIEW_ADD_DISLIKE, paramsActivity);
     }
 
     @Override
@@ -235,12 +214,6 @@ public class JdbcReviewRepository implements ReviewRepository {
         params.addValue("reviewId", reviewId);
         params.addValue("userId", userId);
         jdbc.update(DELETE_LIKE_REVIEW, params);
-
-//        MapSqlParameterSource paramsActivity = new MapSqlParameterSource();
-//        paramsActivity.addValue("userId", userId);
-//        paramsActivity.addValue("entityId", reviewId);
-//
-//        jdbc.update(ACTIVITY_REVIEW_DELETE_REACTION, paramsActivity);
     }
 
 }
