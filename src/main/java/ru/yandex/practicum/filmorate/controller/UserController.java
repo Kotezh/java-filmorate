@@ -6,10 +6,14 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import ru.yandex.practicum.filmorate.model.Activity;
+import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.service.RecommendationService;
 import ru.yandex.practicum.filmorate.service.UserServiceImpl;
 
 import java.util.Collection;
+import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -18,6 +22,13 @@ import java.util.Collection;
 @Validated
 public class UserController {
     private final UserServiceImpl userService;
+    private final RecommendationService recommendationService;
+
+    @GetMapping("/{userId}/feed")
+    @ResponseStatus(HttpStatus.OK)
+    public List<Activity> getActivityByUserId(@PathVariable long userId) {
+        return userService.getActivityById(userId);
+    }
 
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
@@ -43,6 +54,12 @@ public class UserController {
         return userService.update(newUser);
     }
 
+    @DeleteMapping("/{userId}")
+    @ResponseStatus(HttpStatus.OK)
+    public void deleteUser(@PathVariable("userId") long userId) {
+        userService.deleteUser(userId);
+    }
+
     @PutMapping("/{userId}/friends/{friendId}")
     @ResponseStatus(HttpStatus.OK)
     public void addFriend(@PathVariable("userId") long userId, @PathVariable("friendId") long friendId) {
@@ -65,5 +82,11 @@ public class UserController {
     @ResponseStatus(HttpStatus.OK)
     public Collection<User> getCommonFriends(@PathVariable("userId") long userId, @PathVariable("otherId") long otherId) {
         return userService.getCommonFriends(userId, otherId);
+    }
+
+    @GetMapping("/{userId}/recommendations")
+    @ResponseStatus(HttpStatus.OK)
+    public List<Film> getUserRecommendations(@PathVariable("userId") long userId) {
+        return recommendationService.getRecommendations(userId);
     }
 }

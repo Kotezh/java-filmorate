@@ -4,10 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
-import ru.yandex.practicum.filmorate.dal.JdbcFilmRepository;
-import ru.yandex.practicum.filmorate.dal.JdbcGenreRepository;
-import ru.yandex.practicum.filmorate.dal.JdbcMpaRepository;
-import ru.yandex.practicum.filmorate.dal.JdbcUserRepository;
+import ru.yandex.practicum.filmorate.dal.*;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
@@ -26,9 +23,10 @@ public class FilmServiceImpl implements FilmService {
     private final JdbcUserRepository jdbcUserRepository;
     private final JdbcGenreRepository jdbcGenreRepository;
     private final JdbcMpaRepository jdbcMpaRepository;
+    private final JdbcDirectorRepository jdbcDirectorRepository;
 
     @Override
-    public Film getById(long filmId) {
+    public Film getFilmById(long filmId) {
         return jdbcFilmRepository.getFilmById(filmId)
                 .orElseThrow(() -> new NotFoundException("Фильм с id = " + filmId + " не найден"));
     }
@@ -71,7 +69,7 @@ public class FilmServiceImpl implements FilmService {
         }
 
         if (jdbcFilmRepository.getAllFilms().stream().anyMatch((oldFilm) -> oldFilm.getId() == film.getId())) {
-            Film savedFilm = getById(film.getId());
+            Film savedFilm = getFilmById(film.getId());
             film.setLikesCount(savedFilm.getLikesCount());
             Mpa mpa = jdbcMpaRepository.getMpaById(film.getMpa().getId())
                     .orElseThrow(() -> new NotFoundException("Рейтинг с id " + film.getMpa().getId() + " не найден"));
@@ -97,9 +95,15 @@ public class FilmServiceImpl implements FilmService {
         throw new NotFoundException("Фильм с id = " + film.getId() + " не найден");
     }
 
+    public void deleteFilm(long filmId) {
+        getFilmById(filmId);
+        jdbcFilmRepository.deleteFilm(filmId);
+        log.info("Фильм удален");
+    }
+
     @Override
     public void addLike(long filmId, long userId) {
-        Film film = getById(filmId);
+        Film film = getFilmById(filmId);
         jdbcUserRepository.getUserById(userId)
                 .orElseThrow(() -> new NotFoundException("Пользователь с id = " + userId + " не найден"));
 
@@ -112,7 +116,7 @@ public class FilmServiceImpl implements FilmService {
 
     @Override
     public void deleteLike(long filmId, long userId) {
-        Film film = getById(filmId);
+        Film film = getFilmById(filmId);
         jdbcUserRepository.getUserById(userId)
                 .orElseThrow(() -> new NotFoundException("Пользователь с id = " + userId + " не найден"));
 
@@ -124,8 +128,30 @@ public class FilmServiceImpl implements FilmService {
     }
 
     @Override
-    public List<Film> getPopularFilms(int count) {
-        List<Film> popularFilms = jdbcFilmRepository.getPopularFilms(count);
+    public List<Film> getPopularFilms(int count, Long genreId, Integer year) {
+        List<Film> popularFilms = jdbcFilmRepository.getPopularFilms(count, genreId, year);
         return popularFilms;
+    }
+
+    @Override
+    public List<Film> getDirectorFilms(long id, String sortBy) {
+        jdbcDirectorRepository.getById(id)
+                .orElseThrow(() -> new NotFoundException("Режиссёр с id = " + id + " не найден"));
+        if (sortBy.equals("year")) {
+            return jdbcFilmRepository.getDirectorFilmsByYear(id);
+        } else if (sortBy.equals("likes")) {
+            return jdbcFilmRepository.getDirectorFilmsByLikes(id);
+        } else throw new ValidationException("некорректный запрос");
+    }
+
+    @Override
+    public List<Film> getCommonFilms(long userId, long friendId) {
+        List<Film> commonFilms = jdbcFilmRepository.getCommonFilms(userId, friendId);
+        return commonFilms;
+    }
+
+    @Override
+    public List<Film> getSearch(String query, String searchBy) {
+        return jdbcFilmRepository.getSearch(query, searchBy);
     }
 }

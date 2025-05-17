@@ -1,10 +1,13 @@
 package ru.yandex.practicum.filmorate.exception;
 
+import jakarta.validation.ConstraintViolationException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
-import org.springframework.web.bind.annotation.ExceptionHandler;
 
 @RestControllerAdvice
 @Slf4j
@@ -38,4 +41,28 @@ public class ErrorHandler {
                 e.getMessage()
         );
     }
+
+    @ResponseBody
+    @ExceptionHandler(ConstraintViolationException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ErrorResponse onConstraintValidationException(ConstraintViolationException e) {
+        log.error("Параметры не прошли валидацию Spring  {}", e.getMessage());
+        return new ErrorResponse(
+                "Объект не прошёл валидацию Spring ",
+                e.getMessage()
+        );
+    }
+
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ResponseBody
+    public ErrorResponse onMethodArgumentNotValidException(MethodArgumentNotValidException e) {
+        log.error("Объект не прошёл валидацию Spring  {}", e.getMessage());
+        return new ErrorResponse(
+                "Объект не прошёл валидацию Spring ",
+                e.getMessage()
+        );
+    }
+
+
 }

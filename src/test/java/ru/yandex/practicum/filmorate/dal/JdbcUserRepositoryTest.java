@@ -154,6 +154,22 @@ class JdbcUserRepositoryTest {
     }
 
     @Test
+    @DisplayName("Должен удалять пользователя")
+    void shouldDeleteUser() {
+        User userBeforeDelete = jdbcUserRepository.getUserById(TEST_USER_ID)
+                .orElseThrow(() -> new NotFoundException("Не найден пользователь с id = " + TEST_USER_ID));
+
+        assertThat(jdbcUserRepository.getAllUsers()).hasSize(3);
+        assertThat(userBeforeDelete)
+                .usingRecursiveComparison()
+                .isEqualTo(getTestUser());
+
+        jdbcUserRepository.deleteUser(TEST_USER_ID);
+
+        assertThat(jdbcUserRepository.getAllUsers()).hasSize(2);
+    }
+
+    @Test
     @DisplayName("Должен возвращать друзей пользователя")
     void shouldGetUserFriends() {
         List<User> friendsList = jdbcUserRepository.getUserFriends(TEST_USER_ID);
