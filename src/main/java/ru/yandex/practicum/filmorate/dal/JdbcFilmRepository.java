@@ -8,7 +8,6 @@ import org.springframework.jdbc.core.namedparam.NamedParameterJdbcOperations;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Repository;
-import org.springframework.transaction.annotation.Transactional;
 import ru.yandex.practicum.filmorate.Enum.EventType;
 import ru.yandex.practicum.filmorate.Enum.OperationType;
 import ru.yandex.practicum.filmorate.dal.mappers.DirectorRowMapper;
@@ -283,7 +282,6 @@ public class JdbcFilmRepository implements FilmRepository {
         }
     }
 
-    @Transactional
     @Override
     public void addLike(long filmId, long userId) {
 
@@ -302,7 +300,6 @@ public class JdbcFilmRepository implements FilmRepository {
         }
     }
 
-    @Transactional
     @Override
     public void deleteLike(long filmId, long userId) {
         GeneratedKeyHolder keyHolder = new GeneratedKeyHolder();
