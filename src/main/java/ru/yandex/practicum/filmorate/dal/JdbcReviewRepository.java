@@ -5,7 +5,6 @@ import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcOperations;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.stereotype.Repository;
-import org.springframework.transaction.annotation.Transactional;
 import ru.yandex.practicum.filmorate.Enum.EventType;
 import ru.yandex.practicum.filmorate.Enum.OperationType;
 import ru.yandex.practicum.filmorate.dal.mappers.ReviewRowMapper;
@@ -134,7 +133,6 @@ public class JdbcReviewRepository implements ReviewRepository {
                 .collect(Collectors.toList());
     }
 
-    @Transactional
     @Override
     public Review create(Review review) {
         GeneratedKeyHolder keyHolder = new GeneratedKeyHolder();
@@ -158,7 +156,6 @@ public class JdbcReviewRepository implements ReviewRepository {
         return review;
     }
 
-    @Transactional
     @Override
     public Review update(Review review) {
         GeneratedKeyHolder keyHolder = new GeneratedKeyHolder();
@@ -180,7 +177,6 @@ public class JdbcReviewRepository implements ReviewRepository {
         return reviewUpdated;
     }
 
-    @Transactional
     @Override
     public void deleteReview(long reviewId) {
         MapSqlParameterSource params = new MapSqlParameterSource();
