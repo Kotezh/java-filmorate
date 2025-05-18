@@ -7,9 +7,11 @@ import org.springframework.validation.annotation.Validated;
 import ru.yandex.practicum.filmorate.dal.JdbcUserRepository;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
+import ru.yandex.practicum.filmorate.model.Activity;
 import ru.yandex.practicum.filmorate.model.User;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 
 @Service
 @Slf4j
@@ -17,6 +19,15 @@ import java.util.*;
 @Validated
 public class UserServiceImpl implements UserService {
     private final JdbcUserRepository jdbcUserRepository;
+
+    @Override
+    public List<Activity> getActivityById(long userId) {
+        List<Activity> activities = jdbcUserRepository.getActivityById(userId);
+        if (activities.isEmpty()) {
+            throw new NotFoundException("Активность пользователя не найдена");
+        }
+        return activities;
+    }
 
     @Override
     public User getUserById(long userId) {
@@ -51,6 +62,13 @@ public class UserServiceImpl implements UserService {
         throw new NotFoundException("Пользователь с id = " + user.getId() + " не найден");
     }
 
+    @Override
+    public void deleteUser(long userId) {
+        getUserById(userId);
+        jdbcUserRepository.deleteUser(userId);
+        log.info("Пользователь удален");
+    }
+
     private void checkUsersInTable(List<Long> usersIds) {
         List<User> foundUsers = jdbcUserRepository.getUsersByIds(usersIds);
         if (foundUsers.size() != usersIds.size()) {
@@ -75,10 +93,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public List<User> getAllFriends(long userId) {
-        User user = getUserById(userId);
-        if (user == null) {
-            throw new NotFoundException("Пользователь с id = " + userId + " не найден");
-        }
+        getUserById(userId);
         return jdbcUserRepository.getUserFriends(userId);
     }
 

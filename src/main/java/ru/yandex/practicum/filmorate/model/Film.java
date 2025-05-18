@@ -2,6 +2,7 @@ package ru.yandex.practicum.filmorate.model;
 
 import jakarta.validation.constraints.*;
 import lombok.*;
+import ru.yandex.practicum.filmorate.annotation.StartDate;
 
 import java.time.LocalDate;
 import java.util.LinkedHashSet;
@@ -21,6 +22,7 @@ public class Film {
     private Integer duration;
 
     private LinkedHashSet<Genre> genres;
+    private LinkedHashSet<Director> directors;
     @NotNull
     private Mpa mpa;
     int likesCount;

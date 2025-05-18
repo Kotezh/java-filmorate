@@ -51,6 +51,7 @@ class JdbcFilmRepositoryTest {
         genre.setName("Комедия");
         film.getGenres().add(genre);
         film.setLikesCount(1);
+        film.setDirectors(new LinkedHashSet<>());
 
         return film;
     }
@@ -76,6 +77,7 @@ class JdbcFilmRepositoryTest {
         film.getGenres().add(genre);
 
         film.setLikesCount(1);
+        film.setDirectors(new LinkedHashSet<>());
 
         return film;
     }
@@ -106,6 +108,7 @@ class JdbcFilmRepositoryTest {
         film1.setGenres(new LinkedHashSet<>());
         film1.getGenres().add(genre1);
         film1.setLikesCount(3);
+        film1.setDirectors(new LinkedHashSet<>());
         films.add(film1);
 
         Film film2 = new Film();
@@ -123,6 +126,7 @@ class JdbcFilmRepositoryTest {
         film2.getGenres().add(genre1);
         film2.getGenres().add(genre3);
         film2.setLikesCount(2);
+        film2.setDirectors(new LinkedHashSet<>());
         films.add(film2);
 
         return films;
@@ -198,6 +202,24 @@ class JdbcFilmRepositoryTest {
     }
 
     @Test
+    @DisplayName("Должен удалять фильм")
+    void shouldDeleteFilm() {
+        Film filmBeforeDelete = jdbcFilmRepository.getFilmById(TEST_FILM_ID)
+                .orElseThrow(() -> new NotFoundException("Не найден фильм с id = " + TEST_FILM_ID));
+
+        assertThat(jdbcFilmRepository.getAllFilms()).hasSize(3);
+        assertThat(jdbcFilmRepository.getPopularFilms(1000, 1L, 2000)).hasSize(1);
+        assertThat(filmBeforeDelete)
+                .usingRecursiveComparison()
+                .isEqualTo(getTestFilm());
+
+        jdbcFilmRepository.deleteFilm(TEST_FILM_ID);
+
+        assertThat(jdbcFilmRepository.getAllFilms()).hasSize(2);
+        assertThat(jdbcFilmRepository.getPopularFilms(1000, 1L, 2000)).hasSize(0);
+    }
+
+    @Test
     @DisplayName("Должен добавлять записи о лайках")
     void shouldAddLike() {
         Film film = jdbcFilmRepository.getFilmById(TEST_FILM_ID)
@@ -232,16 +254,13 @@ class JdbcFilmRepositoryTest {
     @Test
     @DisplayName("Должен возвращать сортированный список популярных фильмов")
     void shouldGetPopularFilms() {
-        List<Film> popularFilms = jdbcFilmRepository.getPopularFilms(2);
+        List<Film> popularFilms = jdbcFilmRepository.getPopularFilms(2, 1L, 1950);
         List<Film> filmsTest = getAllTestFilms();
 
-        assertThat(popularFilms).hasSize(2);
+        assertThat(popularFilms).hasSize(1);
 
         assertThat(popularFilms.get(0))
                 .usingRecursiveComparison()
                 .isEqualTo(filmsTest.get(1));
-        assertThat(popularFilms.get(1))
-                .usingRecursiveComparison()
-                .isEqualTo(filmsTest.get(2));
     }
 }
